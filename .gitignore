@@ -1,0 +1,26 @@
+# Dependencies
+please-blocks-ide/node_modules/
+
+# Build output
+please-blocks-ide/dist/
+please-blocks-ide/dist-ssr/
+
+# OS
+.DS_Store
+please-blocks-ide/.DS_Store
+
+# Editor
+please-blocks-ide/.vscode/
+please-blocks-ide/.idea/
+
+# Logs
+please-blocks-ide/*.log
+please-blocks-ide/npm-debug.log*
+
+# Environment
+please-blocks-ide/.env
+please-blocks-ide/.env.local
+please-blocks-ide/.env.*.local
+
+# Vite cache
+please-blocks-ide/.vite/
