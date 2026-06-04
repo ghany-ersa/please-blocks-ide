@@ -48,9 +48,18 @@ function onSelect() {
   >
     <!-- Feature Header -->
     <div class="feat-header" @click="onSelect">
-      <span class="feat-icon">📁</span>
+      <!-- Toggle enabled/disabled -->
+      <button
+        class="feat-toggle"
+        :class="{ enabled: feature.enabled !== false }"
+        @click.stop="canvas.toggleFeatureEnabled(feature.id)"
+        :title="feature.enabled !== false ? 'Klik untuk nonaktifkan (comment di index.js)' : 'Klik untuk aktifkan'"
+      >
+        {{ feature.enabled !== false ? '▶' : '⏸' }}
+      </button>
 
-      <span v-if="!editing" class="feat-label" @dblclick.stop="startEdit">
+      <span v-if="!editing" class="feat-label" @dblclick.stop="startEdit"
+        :class="{ disabled: feature.enabled === false }">
         {{ feature.label }}
       </span>
       <input
@@ -64,7 +73,7 @@ function onSelect() {
         autofocus
       />
 
-      <span class="feat-stats">
+      <span class="feat-stats" :class="{ disabled: feature.enabled === false }">
         {{ feature.testCases.length }} TC ·
         {{ feature.testCases.reduce((s, tc) => s + tc.steps.length, 0) }} step
       </span>
@@ -110,12 +119,26 @@ function onSelect() {
   border: 1px solid rgba(168,85,247,0.2);
   border-radius: 10px;
   flex-shrink: 0;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, opacity 0.2s;
 }
 .feature.active {
   border-color: rgba(168,85,247,0.45);
   box-shadow: 0 0 0 1px rgba(168,85,247,0.15);
 }
+
+/* Toggle button */
+.feat-toggle {
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; padding: 0 4px; flex-shrink: 0;
+  color: #475569; transition: color 0.15s;
+}
+.feat-toggle.enabled { color: #10b981; }
+.feat-toggle:not(.enabled) { color: #4b5563; }
+.feat-toggle:hover { opacity: 0.8; }
+
+/* Dim labels when disabled */
+.feat-label.disabled,
+.feat-stats.disabled { opacity: 0.4; text-decoration: line-through; }
 
 .feat-header {
   display: flex;

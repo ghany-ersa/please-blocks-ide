@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useCanvasStore } from '@/stores/canvasStore.js'
+import { useBlockRegistry } from '@/stores/blockRegistry.js'
+import { useDataRegistry } from '@/stores/dataRegistry.js'
+import { validateTestCase } from '@/core/blocks/stepValidator.js'
 import StepItem from './StepItem.vue'
 
 const props = defineProps({
@@ -8,8 +11,15 @@ const props = defineProps({
   featureId: { type: String, required: true }
 })
 
-const canvas   = useCanvasStore()
-const editing  = ref(false)
+const canvas    = useCanvasStore()
+const registry  = useBlockRegistry()
+const dataReg   = useDataRegistry()
+const editing   = ref(false)
+
+const tcValidation = computed(() =>
+  validateTestCase(props.testCase, registry, dataReg.entries)
+)
+const tcErrorCount = computed(() => tcValidation.value.totalErrors)
 const draftLabel = ref('')
 const isDropOver = ref(false)
 
@@ -104,6 +114,11 @@ function onDrop(e) {
       />
 
       <span class="tc-count">{{ testCase.steps.length }} step</span>
+      <span
+        v-if="tcErrorCount > 0"
+        class="tc-error-badge"
+        :title="`${tcErrorCount} field belum lengkap`"
+      >⚠ {{ tcErrorCount }}</span>
       <button class="tc-remove" @click.stop="onRemove" title="Hapus test case">×</button>
     </div>
 
@@ -195,6 +210,17 @@ function onDrop(e) {
   border-radius: 10px;
   padding: 1px 6px;
   flex-shrink: 0;
+}
+.tc-error-badge {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 8px;
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: #ef4444;
+  flex-shrink: 0;
+  cursor: help;
 }
 .tc-remove {
   background: none; border: none; cursor: pointer;

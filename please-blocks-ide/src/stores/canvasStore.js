@@ -2,9 +2,28 @@ import { defineStore } from 'pinia'
 
 // Helper — generate ID unik sederhana
 const uid = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+const CANVAS_KEY = 'please-blocks:canvas-v1'
 
 export const useCanvasStore = defineStore('canvas', {
-  state: () => ({
+  state: () => {
+    // Restore canvas dari localStorage saat boot
+    try {
+      const saved = localStorage.getItem(CANVAS_KEY)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed.features?.length) {
+          return {
+            features:         parsed.features,
+            activeFeatureId:  parsed.features[0]?.id || null,
+            activeTestCaseId: null,
+            activeStepId:     null,
+            draggingBlockId:  null,
+            dropTargetId:     null
+          }
+        }
+      }
+    } catch { /* ignore */ }
+    return {
     // Daftar features di canvas
     features: [],
 
@@ -18,7 +37,8 @@ export const useCanvasStore = defineStore('canvas', {
 
     // ID target drop yang di-hover saat drag berlangsung
     dropTargetId: null
-  }),
+    }
+  },
 
   getters: {
     // Cari feature by ID
@@ -67,11 +87,18 @@ export const useCanvasStore = defineStore('canvas', {
         id:        uid('feat'),
         label,
         testCases: [],
-        collapsed: false
+        collapsed: false,
+        enabled:   true    // ← Sprint 4: toggle untuk index.js
       }
       this.features.push(feature)
       this.activeFeatureId = feature.id
+        this.persist()
       return feature
+    },
+
+    toggleFeatureEnabled(featureId) {
+      const f = this.features.find(f => f.id === featureId)
+      if (f) { f.enabled = !f.enabled; this.persist() }
     },
 
     updateFeatureLabel(featureId, label) {
@@ -83,6 +110,7 @@ export const useCanvasStore = defineStore('canvas', {
       const idx = this.features.findIndex(f => f.id === featureId)
       if (idx !== -1) {
         this.features.splice(idx, 1)
+          this.persist()
         if (this.activeFeatureId === featureId) {
           this.activeFeatureId  = this.features[0]?.id || null
           this.activeTestCaseId = null
@@ -108,6 +136,7 @@ export const useCanvasStore = defineStore('canvas', {
         collapsed: false
       }
       f.testCases.push(tc)
+          this.persist()
       this.activeFeatureId  = featureId
       this.activeTestCaseId = tc.id
       return tc
@@ -125,6 +154,7 @@ export const useCanvasStore = defineStore('canvas', {
         const idx = f.testCases.findIndex(t => t.id === testCaseId)
         if (idx !== -1) {
           f.testCases.splice(idx, 1)
+          this.persist()
           if (this.activeTestCaseId === testCaseId) {
             this.activeTestCaseId = f.testCases[0]?.id || null
             this.activeStepId     = null
@@ -154,6 +184,7 @@ export const useCanvasStore = defineStore('canvas', {
             hasError: false
           }
           tc.steps.push(step)
+          this.persist()
           this.activeTestCaseId = testCaseId
           this.activeStepId     = step.id
           return step
@@ -177,6 +208,7 @@ export const useCanvasStore = defineStore('canvas', {
           const idx = tc.steps.findIndex(s => s.id === stepId)
           if (idx !== -1) {
             tc.steps.splice(idx, 1)
+          this.persist()
             if (this.activeStepId === stepId) this.activeStepId = null
             return
           }
@@ -190,7 +222,9 @@ export const useCanvasStore = defineStore('canvas', {
         const tc = f.testCases.find(t => t.id === testCaseId)
         if (tc) {
           const [step] = tc.steps.splice(fromIndex, 1)
+          this.persist()
           tc.steps.splice(toIndex, 0, step)
+          this.persist()
           return
         }
       }
@@ -229,21 +263,40 @@ export const useCanvasStore = defineStore('canvas', {
       this.activeStepId = stepId
     },
 
+    // ── Persistence ────────────────────────────────────────────────
+
+    persist() {
+      try {
+        localStorage.setItem(CANVAS_KEY, JSON.stringify({ features: this.features }))
+      } catch { /* quota exceeded etc. */ }
+    },
+
+    clearCanvas() {
+      this.features         = []
+      this.activeFeatureId  = null
+      this.activeTestCaseId = null
+      this.activeStepId     = null
+      localStorage.removeItem(CANVAS_KEY)
+    },
+
     // ── Seed Data (untuk dev preview) ─────────────────────────────
 
     seedDemoData() {
       this.features = []
-      const f = this.addFeature('Login — practicetestautomation.com')
+      const f  = this.addFeature('Login — practicetestautomation.com')
       const tc1 = this.addTestCase(f.id, 'login berhasil')
-      this.addStep(tc1.id, 'nav.goTo',           { urlTarget: { type: 'dataref', path: 'URL.login' } })
-      this.addStep(tc1.id, 'action.click',        { label: 'button submit', selector: '#submit' })
-      this.addStep(tc1.id, 'nav.checkWhere',      { urlExpected: { type: 'dataref', path: 'URL.dashboard' } })
-      this.addStep(tc1.id, 'assert.seeText',      { label: 'teks sukses', selector: '//h1', expected: 'Logged In Successfully' })
+      this.addStep(tc1.id, 'nav.goTo',      { urlTarget:  { type: 'dataref', path: 'URL.login' } })
+      this.addStep(tc1.id, 'action.fill',   { label: 'input username', selector: '#username', value: { type: 'dataref', path: 'ACCOUNT.valid.username' } })
+      this.addStep(tc1.id, 'action.fill',   { label: 'input password', selector: '#password', value: { type: 'dataref', path: 'ACCOUNT.valid.password' } })
+      this.addStep(tc1.id, 'action.click',  { label: 'button submit', selector: '#submit' })
+      this.addStep(tc1.id, 'nav.checkWhere',{ urlExpected: { type: 'dataref', path: 'URL.dashboard' } })
+      this.addStep(tc1.id, 'assert.seeText',{ label: 'teks sukses', selector: '//h1', expected: 'Logged In Successfully' })
 
       const tc2 = this.addTestCase(f.id, 'login gagal - username salah')
       this.addStep(tc2.id, 'nav.goTo',      { urlTarget: { type: 'dataref', path: 'URL.login' } })
       this.addStep(tc2.id, 'action.fill',   { label: 'input username', selector: '#username', value: 'invaliduser' })
       this.addStep(tc2.id, 'assert.seeText',{ label: 'pesan error', selector: '//div[@id="error"]', expected: 'Your username is invalid!' })
+        this.persist()
     }
   }
 })

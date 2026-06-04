@@ -102,15 +102,25 @@ function generateStep(step, blockRegistry) {
 }
 
 /**
- * Generate index.js dari semua features aktif.
+ * Generate index.js dari semua features.
+ * Feature dengan enabled=false di-comment-out otomatis.
  */
 export function generateIndex(features) {
   if (!features.length) return '// Belum ada feature'
-  return [
+  const lines = [
     '// index.js — aktifkan atau nonaktifkan spec yang ingin dijalankan',
-    '',
-    ...features.map(f => `require('./feature/${slugify(f.label)}.spec')`)
-  ].join('\n')
+    '// Toggle fitur melalui canvas (ikon ▶/⏸ di header feature)',
+    ''
+  ]
+  for (const f of features) {
+    const path    = `'./feature/${slugify(f.label)}.spec'`
+    const enabled = f.enabled !== false  // default true jika undefined
+    lines.push(enabled
+      ? `require(${path})`
+      : `// require(${path})   // ← dinonaktifkan`
+    )
+  }
+  return lines.join('\n')
 }
 
 // ── Helper ────────────────────────────────────────────────────────
