@@ -34,7 +34,10 @@ export const useRunnerStore = defineStore('runner', {
     },
 
     // ID interval simulasi (untuk di-clear saat stop)
-    _simTimer: null
+    _simTimer: null,
+
+    // Apakah modal Report Viewer sedang tampil
+    showReport: false
   }),
 
   getters: {
@@ -146,6 +149,7 @@ export const useRunnerStore = defineStore('runner', {
         )
 
         this.status = this.stats.failed > 0 ? 'failed' : 'passed'
+        this.showReport = true
       }
     },
 

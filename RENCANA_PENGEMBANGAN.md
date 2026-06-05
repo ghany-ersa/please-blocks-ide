@@ -616,7 +616,7 @@ Prioritas: IDE bisa digunakan end-to-end untuk membuat dan menjalankan test.
 | ✅ | Feature Toggle | Visual toggle untuk enable/disable feature di canvas |
 | ✅ | Canvas Variable | Blok `getText`/`getValue` bisa di-pipe ke blok assertion berikutnya |
 | ⏳ | Selector Inspector | Browser extension Chrome: klik elemen → selector otomatis ter-isi di blok aktif |
-| ⏳ | Report Viewer | Embed mochawesome HTML report setelah test selesai |
+| ✅ | Report Viewer | Modal ringkasan visual hasil test (pass rate ring, breakdown per feature & TC, stats) muncul otomatis setelah runner selesai; bisa dibuka ulang via tombol 📋 Laporan di topbar |
 | ⏳ | Reverse Codegen | Parse kode `.spec.js` yang diedit manual kembali menjadi canvas nodes |
 | ⏳ | Multi-browser | Pilih browser target (Chrome, Firefox, Edge) sebelum run |
 | ⏳ | Dark/Light theme | Tema IDE yang bisa disesuaikan |

@@ -9,6 +9,7 @@ import ComponentBuilder  from '@/components/manager/ComponentBuilder.vue'
 import EnvEditor         from '@/components/manager/EnvEditor.vue'
 import TestRunner        from '@/components/runner/TestRunner.vue'
 import ExportModal       from '@/components/export/ExportModal.vue'
+import ReportViewer      from '@/components/runner/ReportViewer.vue'
 import { useRunnerStore }     from '@/stores/runnerStore.js'
 import { useCanvasStore  }   from '@/stores/canvasStore.js'
 import { useBlockRegistry }  from '@/stores/blockRegistry.js'
@@ -100,7 +101,7 @@ const runnerStatusColor = computed(() => {
       <div class="topbar-left">
         <span class="logo">🧩</span>
         <span class="app-name">Please Blocks</span>
-        <span class="app-version">v0.5 — Sprint 5</span>
+        <span class="app-version">v0.6 — Sprint 6</span>
       </div>
       <div class="topbar-center">
         <span class="project-name">my-automation-tests</span>
@@ -118,6 +119,15 @@ const runnerStatusColor = computed(() => {
           🔍 Inspector
         </button>
         <button class="topbar-btn export" @click="showExportModal = true" title="Export project">📦 Export</button>
+        <button
+          v-if="runner.status === 'passed' || runner.status === 'failed'"
+          class="topbar-btn report"
+          :class="runner.status"
+          @click="runner.showReport = true"
+          title="Lihat laporan test"
+        >
+          📋 Laporan
+        </button>
 
         <!-- Run button — langsung trigger runner -->
         <button
@@ -185,6 +195,7 @@ const runnerStatusColor = computed(() => {
     />
     <EnvEditor         v-if="showEnvEditor"        @close="showEnvEditor = false" />
     <ExportModal       v-if="showExportModal"      @close="showExportModal = false" />
+    <ReportViewer      v-if="runner.showReport"   @close="runner.showReport = false" />
 
     <!-- Status bar -->
     <footer class="statusbar">
@@ -205,7 +216,7 @@ const runnerStatusColor = computed(() => {
       <span v-if="runnerStatusLabel">·</span>
 
       <span class="status-dot" :class="runner.status"></span>
-      <span>Sprint 5 — Test Runner + Env Editor + Validasi</span>
+      <span>Sprint 6 — Report Viewer</span>
     </footer>
   </div>
 </template>
@@ -263,6 +274,9 @@ const runnerStatusColor = computed(() => {
 .topbar-btn.run.running         { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #f59e0b; cursor: default; }
 .topbar-btn.run:disabled        { opacity: 0.7; cursor: default; }
 .topbar-btn.runner-toggle       { padding: 4px 8px; font-size: 14px; }
+.topbar-btn.report              { background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.25); color: #818cf8; }
+.topbar-btn.report:hover        { background: rgba(99,102,241,0.18); }
+.topbar-btn.report.failed       { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.3); color: #ef4444; }
 
 /* MAIN */
 .main {
