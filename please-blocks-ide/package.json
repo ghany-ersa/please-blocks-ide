@@ -4,8 +4,8 @@
   "description": "Visual block-based IDE untuk QA Automation berbasis please-test",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"node server/index.js\" \"vite\" --names \"server,vite\" --prefix-colors \"cyan,green\"",
-    "server": "node server/index.js",
+    "dev": "concurrently \"node --watch --watch-path=server server/index.js\" \"vite\" --names \"server,vite\" --prefix-colors \"cyan,green\"",
+    "server": "node --watch --watch-path=server server/index.js",
     "vite": "vite",
     "build": "vite build",
     "preview": "vite preview"

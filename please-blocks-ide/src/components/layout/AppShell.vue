@@ -9,6 +9,8 @@ import ComponentBuilder  from '@/components/manager/ComponentBuilder.vue'
 import EnvEditor         from '@/components/manager/EnvEditor.vue'
 import TestRunner        from '@/components/runner/TestRunner.vue'
 import ExportModal       from '@/components/export/ExportModal.vue'
+import ImportModal       from '@/components/export/ImportModal.vue'
+import ProjectImportModal from '@/components/export/ProjectImportModal.vue'
 import ReportViewer      from '@/components/runner/ReportViewer.vue'
 import BrowserPicker     from '@/components/runner/BrowserPicker.vue'
 import DirectoryPicker   from '@/components/shared/DirectoryPicker.vue'
@@ -44,6 +46,8 @@ function closeComponentBuilder() {
 }
 const showEnvEditor        = ref(false)
 const showExportModal      = ref(false)
+const showImportModal      = ref(false)
+const showProjectImportModal = ref(false)
 const showDirectoryPicker  = ref(false)
 
 // Cek ketersediaan server saat app boot
@@ -140,6 +144,8 @@ const runnerStatusColor = computed(() => {
         >
           🔍 Inspector
         </button>
+        <button class="topbar-btn import" @click="showImportModal = true" title="Import .spec.js ke canvas">📥 Import</button>
+        <button class="topbar-btn import" @click="showProjectImportModal = true" title="Import seluruh folder project">📁 Import Project</button>
         <button class="topbar-btn export" @click="showExportModal = true" title="Export project">📦 Export</button>
         <button
           v-if="runner.status === 'passed' || runner.status === 'failed'"
@@ -231,6 +237,8 @@ const runnerStatusColor = computed(() => {
     />
     <EnvEditor         v-if="showEnvEditor"        @close="showEnvEditor = false" />
     <ExportModal       v-if="showExportModal"      @close="showExportModal = false" />
+    <ImportModal       v-if="showImportModal"      @close="showImportModal = false" />
+    <ProjectImportModal v-if="showProjectImportModal" @close="showProjectImportModal = false" />
     <ReportViewer      v-if="runner.showReport"   @close="runner.showReport = false" />
     <DirectoryPicker
       v-if="showDirectoryPicker"
@@ -317,6 +325,8 @@ const runnerStatusColor = computed(() => {
 .topbar-btn.active              { background: rgba(99,102,241,0.15); border-color: #6366f1; color: #818cf8; }
 .topbar-btn.export              { background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.25); color: #a855f7; }
 .topbar-btn.export:hover        { background: rgba(168,85,247,0.18); }
+.topbar-btn.import              { background: rgba(14,165,233,0.08); border-color: rgba(14,165,233,0.25); color: #38bdf8; }
+.topbar-btn.import:hover        { background: rgba(14,165,233,0.18); }
 .topbar-btn.run                 { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: #10b981; }
 .topbar-btn.run:hover:not(:disabled) { background: rgba(16,185,129,0.2); border-color: #10b981; }
 .topbar-btn.run.running         { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #f59e0b; cursor: default; }

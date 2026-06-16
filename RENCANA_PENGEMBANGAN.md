@@ -617,7 +617,8 @@ Prioritas: IDE bisa digunakan end-to-end untuk membuat dan menjalankan test.
 | ✅ | Canvas Variable | Blok `getText`/`getValue` bisa di-pipe ke blok assertion berikutnya |
 | ✅ | Selector Inspector UI | Field selector dengan auto-detect tipe (XPath/ID/CSS/Link), validasi syntax, tombol copy, hint chips interaktif, dan contoh format per tipe |
 | ✅ | Report Viewer | Modal ringkasan visual hasil test (pass rate ring, breakdown per feature & TC, stats) muncul otomatis setelah runner selesai; bisa dibuka ulang via tombol 📋 Laporan di topbar |
-| ⏳ | Reverse Codegen | Parse kode `.spec.js` yang diedit manual kembali menjadi canvas nodes |
+| ✅ | Reverse Codegen | Import `.spec.js` (AST via @babel/parser) → canvas nodes. Tombol 📥 Import di topbar: tempel/muat file, preview + warning, append/replace. Method built-in, pola `seeText`, `getText`/`getValue` (varref), component call, komentar → note, fallback Raw Code |
+| ✅ | Import by Project | Tombol 📁 Import Project: pilih folder → server baca `feature/*.spec.js` + `data/*.js` + `components/*.js` + `.env` + `index.js` → rekonstruksi penuh ke canvas + dataRegistry + componentStore (urutan: data → components(register) → spec). Parser data (round-trip `process.env`) & component (class → def) berbagi `statementParser`. Preview ringkasan + warning, replace/merge |
 | ✅ | Multi-browser | Dropdown BrowserPicker di topbar untuk pilih Chrome/Firefox/Edge (Safari segera); browser tampil di log runner saat run |
 | ⏳ | Dark/Light theme | Tema IDE yang bisa disesuaikan |
 

@@ -228,6 +228,40 @@ export const useComponentStore = defineStore('componentStore', {
       this.builderTargetCompId = null
     },
 
+    // ── Bulk load (Import by Project) ─────────────────────────────
+
+    /**
+     * Ganti / merge component dari hasil parse project.
+     * Parser tidak menghasilkan ID — di sini diberi uid()/uidM().
+     *
+     * @param {Array}  defs - [{ name, exportName, methods:[{ name, params, steps }] }]
+     * @param {Object} [opts]
+     * @param {boolean} [opts.merge] - true: gabung by name; false (default): replace
+     */
+    setComponents(defs, { merge = false } = {}) {
+      const withIds = (defs || []).map(d => ({
+        id:         uid(),
+        name:       d.name,
+        exportName: d.exportName || String(d.name).toUpperCase(),
+        methods:    (d.methods || []).map(m => ({
+          id:     uidM(),
+          name:   m.name,
+          params: [...(m.params || [])],
+          steps:  (m.steps || []).map(s => ({ blockId: s.blockId, inputs: { ...(s.inputs || {}) }, ...(s.note ? { note: s.note } : {}) }))
+        }))
+      }))
+
+      if (merge) {
+        // Ganti yang namanya sama, tambahkan yang baru
+        const byName = new Map(this.components.map(c => [c.name, c]))
+        for (const c of withIds) byName.set(c.name, c)
+        this.components = [...byName.values()]
+      } else {
+        this.components = withIds
+      }
+      this.processAndRegister()
+    },
+
     // ── Persistence ───────────────────────────────────────────────
 
     persist() {

@@ -28,5 +28,31 @@ export default [
     validate(_inputs) {
       return null
     }
+  },
+
+  {
+    id: 'util.rawCode',
+    type: 'utility',
+    label: 'Raw Code',
+    icon: '📝',
+    color: '#6b7280',
+    colorBg: 'rgba(107,114,128,0.1)',
+    description: 'Baris kode JS mentah hasil import .spec.js yang belum dipetakan ke blok',
+    inputs: [
+      {
+        name: 'code',
+        type: 'text',
+        label: 'Kode',
+        placeholder: 'await please.customMethod()',
+        required: true
+      }
+    ],
+    output: null,
+    codegen(inputs) {
+      return inputs.code || '// (kode kosong)'
+    },
+    validate(inputs) {
+      return inputs.code ? null : 'Kode tidak boleh kosong'
+    }
   }
 ]

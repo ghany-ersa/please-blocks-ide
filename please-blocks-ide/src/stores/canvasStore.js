@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { mapArgNInputs } from '@/core/codegen/statementParser.js'
 
 // Helper — generate ID unik sederhana
 const uid = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
@@ -341,6 +342,45 @@ export const useCanvasStore = defineStore('canvas', {
       this.activeTestCaseId = null
       this.activeStepId     = null
       localStorage.removeItem(CANVAS_KEY)
+    },
+
+    // ── Import (Reverse Codegen) ──────────────────────────────────
+
+    /**
+     * Impor hasil parseSpec() ke canvas. Membangun ulang feature/testCase/step
+     * dengan ID baru, dan memetakan input component argN → nama field sebenarnya.
+     *
+     * @param {Array}  features        - dari parseSpec().features
+     * @param {Object} [opts]
+     * @param {Object} [opts.blockRegistry] - untuk resolve nama field component
+     * @param {boolean} [opts.replace]  - true: ganti seluruh canvas; false: append
+     * @returns {Object} feature pertama yang diimpor (atau null)
+     */
+    importFeatures(features, { blockRegistry = null, replace = false } = {}) {
+      if (replace) this.features = []
+      let firstFeature = null
+
+      for (const pf of features) {
+        const feature = {
+          id: uid('feat'), label: pf.label || 'Feature', collapsed: false, enabled: true,
+          testCases: (pf.testCases || []).map(ptc => ({
+            id: uid('tc'), label: ptc.label || 'Test Case', collapsed: false,
+            steps: (ptc.steps || []).map(ps => {
+              const step = { id: uid('step'), blockId: ps.blockId, inputs: mapArgNInputs(ps, blockRegistry), hasError: false }
+              if (ps.note) step.note = ps.note
+              return step
+            })
+          }))
+        }
+        this.features.push(feature)
+        if (!firstFeature) firstFeature = feature
+      }
+
+      this.activeFeatureId = firstFeature?.id || this.activeFeatureId
+      this.activeTestCaseId = null
+      this.activeStepId = null
+      this.persist()
+      return firstFeature
     },
 
     // ── Seed Data (untuk dev preview) ─────────────────────────────

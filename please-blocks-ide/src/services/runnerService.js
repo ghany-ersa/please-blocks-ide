@@ -22,6 +22,35 @@ export async function checkServerHealth() {
 }
 
 /**
+ * Baca seluruh file relevan dari folder project (Import by Project).
+ *
+ * @param {string} projectPath - absolute path folder project
+ * @returns {Promise<{ ok: boolean, data?: Object, error?: string }>}
+ */
+export async function readProject(projectPath) {
+  let res
+  try {
+    res = await fetch(`${BASE}/files/read-project?path=${encodeURIComponent(projectPath)}`)
+  } catch (err) {
+    return { ok: false, error: `Tidak dapat terhubung ke server: ${err.message}` }
+  }
+
+  // Respons mungkin bukan JSON (mis. server lama tanpa route ini → HTML 404).
+  let data
+  try {
+    data = await res.json()
+  } catch {
+    if (res.status === 404) {
+      return { ok: false, error: 'Endpoint read-project tidak ditemukan — restart server (npm run dev) agar route terbaru termuat.' }
+    }
+    return { ok: false, error: `Server membalas respons non-JSON (status ${res.status}).` }
+  }
+
+  if (!res.ok) return { ok: false, error: data.error || `Gagal membaca project (status ${res.status})` }
+  return { ok: true, data }
+}
+
+/**
  * Mulai run sungguhan via server.
  *
  * @param {Object}   opts

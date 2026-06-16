@@ -245,6 +245,27 @@ export const useDataRegistry = defineStore('dataRegistry', {
       this.processAndRegister()
     },
 
+    // ── Bulk load (Import by Project) ─────────────────────────────
+
+    /**
+     * Ganti / merge files + env dari hasil parse project.
+     *
+     * @param {Object} files - { fileId: { id, filename, label, description, groups } }
+     * @param {Object} [env] - { KEY: value }
+     * @param {Object} [opts]
+     * @param {boolean} [opts.merge] - true: gabung; false (default): replace penuh
+     */
+    setData(files, env = {}, { merge = false } = {}) {
+      if (merge) {
+        this.files = { ...this.files, ...(files || {}) }
+        this.env   = { ...this.env, ...(env || {}) }
+      } else {
+        this.files = { ...(files || {}) }
+        this.env   = { ...(env || {}) }
+      }
+      this.processAndRegister()
+    },
+
     // ── Persistence ───────────────────────────────────────────────
 
     persist() {
