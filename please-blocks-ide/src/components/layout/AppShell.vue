@@ -12,8 +12,8 @@ import ExportModal       from '@/components/export/ExportModal.vue'
 import ImportModal       from '@/components/export/ImportModal.vue'
 import ProjectImportModal from '@/components/export/ProjectImportModal.vue'
 import ReportViewer      from '@/components/runner/ReportViewer.vue'
-import BrowserPicker     from '@/components/runner/BrowserPicker.vue'
 import DirectoryPicker   from '@/components/shared/DirectoryPicker.vue'
+import TopbarMenu        from '@/components/layout/TopbarMenu.vue'
 import { exportProject } from '@/core/codegen/projectExporter.js'
 import { writeProject }  from '@/services/runnerService.js'
 import { useRunnerStore }     from '@/stores/runnerStore.js'
@@ -169,17 +169,44 @@ const runnerStatusColor = computed(() => {
     <!-- Top bar -->
     <header class="topbar">
       <div class="topbar-left">
-        <span class="logo">🧩</span>
-        <span class="app-name">Please Blocks</span>
-        <span class="app-version">v0.8 — Sprint 8</span>
+
+        <!-- Menu: File (import / export / project) -->
+        <TopbarMenu label="File" icon="📁">
+          <div class="menu-head">Import</div>
+          <button class="menu-item" @click="showImportModal = true">
+            <span class="mi">📥</span> Import .spec.js
+          </button>
+          <button class="menu-item" @click="showProjectImportModal = true">
+            <span class="mi">📁</span> Import Project
+          </button>
+          <div class="menu-sep"></div>
+          <div class="menu-head">Export</div>
+          <button class="menu-item" @click="showExportModal = true">
+            <span class="mi">📦</span> Export ZIP
+          </button>
+        </TopbarMenu>
+
+        <!-- Menu: Workspace (editor & panel) -->
+        <TopbarMenu
+          label="Workspace" icon="⊞"
+          :active="showDataManager || showComponentBuilder || showEnvEditor"
+        >
+          <button class="menu-item" :class="{ active: showDataManager }" @click="showDataManager = true">
+            <span class="mi">📊</span> Data Manager
+          </button>
+          <button class="menu-item" :class="{ active: showComponentBuilder }" @click="showComponentBuilder = true; builderInitialCompId = null">
+            <span class="mi">📦</span> Components
+          </button>
+        </TopbarMenu>
       </div>
+
       <div class="topbar-center">
         <span class="project-name">my-automation-tests</span>
       </div>
+
       <div class="topbar-right">
-        <button class="topbar-btn" :class="{ active: showDataManager }"      @click="showDataManager = true"      title="Data Manager">📊 Data</button>
-        <button class="topbar-btn" :class="{ active: showComponentBuilder }" @click="showComponentBuilder = true; builderInitialCompId = null" title="Component Builder">📦 Components</button>
-        <button class="topbar-btn" :class="{ active: showEnvEditor }"        @click="showEnvEditor = true"        title="Environment Variables">⚙️ .env</button>
+
+        <!-- Toggle Inspector & Code -->
         <button
           class="topbar-btn"
           :class="{ active: showRightPanel }"
@@ -188,8 +215,19 @@ const runnerStatusColor = computed(() => {
         >
           🔍 Inspector
         </button>
-        <button class="topbar-btn import" @click="showImportModal = true" title="Import .spec.js ke canvas">📥 Import</button>
-        <button class="topbar-btn import" @click="showProjectImportModal = true" title="Import seluruh folder project">📁 Import Project</button>
+
+        <!-- Folder project (di samping Simpan) -->
+        <button
+          v-if="runner.serverAvailable"
+          class="topbar-btn folder"
+          :class="{ 'has-path': !!runner.projectPath }"
+          @click="showDirectoryPicker = true"
+          :title="runner.projectPath || 'Pilih folder project'"
+        >
+          📂 {{ runner.projectPath ? '…' + runner.projectPath.slice(-16) : 'Set Folder' }}
+        </button>
+
+        <!-- Save (primary) -->
         <button
           v-if="runner.serverAvailable"
           class="topbar-btn save"
@@ -201,9 +239,10 @@ const runnerStatusColor = computed(() => {
           {{ saveState === 'saving' ? '⏳ Menyimpan...'
            : saveState === 'saved' ? `✓ ${saveMessage}`
            : saveState === 'error' ? `✗ ${saveMessage}`
-           : '💾 Simpan ke Project' }}
+           : '💾 Simpan' }}
         </button>
-        <button class="topbar-btn export" @click="showExportModal = true" title="Export project">📦 Export</button>
+
+        <!-- Laporan (kontekstual) -->
         <button
           v-if="runner.status === 'passed' || runner.status === 'failed'"
           class="topbar-btn report"
@@ -214,21 +253,7 @@ const runnerStatusColor = computed(() => {
           📋 Laporan
         </button>
 
-        <!-- Browser picker -->
-        <BrowserPicker />
-
-        <!-- Project path button (hanya tampil jika server tersedia) -->
-        <button
-          v-if="runner.serverAvailable"
-          class="topbar-btn project-path"
-          :class="{ 'has-path': !!runner.projectPath }"
-          @click="showDirectoryPicker = true"
-          :title="runner.projectPath || 'Pilih folder project untuk real run'"
-        >
-          📁 {{ runner.projectPath ? '...' + runner.projectPath.slice(-20) : 'Set Folder' }}
-        </button>
-
-        <!-- Run button -->
+        <!-- Run (primary) -->
         <button
           class="topbar-btn run"
           :class="{ running: runner.isRunning, 'run-real': runner.canRunReal }"
@@ -354,12 +379,10 @@ const runnerStatusColor = computed(() => {
   flex-shrink: 0;
   gap: 12px;
 }
-.topbar-left   { display: flex; align-items: center; gap: 8px; flex: 1; }
+.topbar-left   { display: flex; align-items: center; gap: 6px; flex: 1; }
 .topbar-center { flex: 1; text-align: center; }
 .topbar-right  { display: flex; align-items: center; gap: 5px; flex: 1; justify-content: flex-end; }
 
-.logo      { font-size: 16px; }
-.app-name  { font-size: 13px; font-weight: 700; color: #e2e8f0; }
 .app-version {
   font-size: 10px; color: #334155;
   background: #1e293b;
@@ -380,10 +403,16 @@ const runnerStatusColor = computed(() => {
 }
 .topbar-btn:hover               { color: #94a3b8; border-color: #475569; }
 .topbar-btn.active              { background: rgba(99,102,241,0.15); border-color: #6366f1; color: #818cf8; }
-.topbar-btn.export              { background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.25); color: #a855f7; }
-.topbar-btn.export:hover        { background: rgba(168,85,247,0.18); }
-.topbar-btn.import              { background: rgba(14,165,233,0.08); border-color: rgba(14,165,233,0.25); color: #38bdf8; }
-.topbar-btn.import:hover        { background: rgba(14,165,233,0.18); }
+.topbar-divider {
+  width: 1px; height: 20px; background: #1e293b; margin: 0 4px; flex-shrink: 0;
+}
+.topbar-btn.folder {
+  max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: monospace; font-size: 9px;
+  background: rgba(14,165,233,0.06); border-color: rgba(14,165,233,0.2); color: #38bdf8;
+}
+.topbar-btn.folder.has-path     { color: #7dd3fc; }
+.topbar-btn.folder:hover        { background: rgba(14,165,233,0.16); }
 .topbar-btn.save                { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.25); color: #34d399; }
 .topbar-btn.save:hover:not(:disabled) { background: rgba(16,185,129,0.18); }
 .topbar-btn.save:disabled       { opacity: 0.6; cursor: default; }
@@ -528,21 +557,6 @@ const runnerStatusColor = computed(() => {
 }
 .server-badge.online  { color: #10b981; background: rgba(16,185,129,0.1); }
 .server-badge.offline { color: #475569; background: rgba(71,85,105,0.1); }
-
-/* Project path button */
-.topbar-btn.project-path {
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  background: rgba(14,165,233,0.06);
-  border-color: rgba(14,165,233,0.2);
-  color: #38bdf8;
-  font-family: monospace;
-  font-size: 9px;
-}
-.topbar-btn.project-path.has-path { color: #7dd3fc; }
-.topbar-btn.project-path:hover { background: rgba(14,165,233,0.14); }
 
 /* Run real button */
 .topbar-btn.run.run-real {

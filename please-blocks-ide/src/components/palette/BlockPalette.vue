@@ -25,7 +25,8 @@ const filteredCategories = computed(() => {
 <template>
   <aside class="palette">
     <div class="palette-header">
-      <span class="palette-title">🧩 Blok</span>
+      <span class="brand-logo">🧩</span>
+      <span class="brand-name">Please Blocks</span>
     </div>
 
     <div class="palette-search">
@@ -66,13 +67,20 @@ const filteredCategories = computed(() => {
   flex-shrink: 0;
 }
 .palette-header {
-  padding: 12px 12px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  box-sizing: border-box;
   border-bottom: 1px solid #1e293b;
+  flex-shrink: 0;
 }
-.palette-title {
-  font-size: 12px;
+.brand-logo { font-size: 16px; }
+.brand-name {
+  font-size: 13px;
   font-weight: 700;
-  color: #94a3b8;
+  color: #e2e8f0;
 }
 .palette-search {
   padding: 8px 10px;
