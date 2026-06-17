@@ -34,6 +34,24 @@ export function useProjectWorkspace({ onKeepLocal } = {}) {
     runner.setProjectPath('')
   }
 
+  // Buka folder sebagai workspace: baca isi → muat penuh (replace) → jadikan
+  // folder kerja (projectPath). Sama dgn alur Open di ProjectGate.
+  // @returns {Promise<{ ok: boolean, error?: string }>}
+  async function openProject(path) {
+    const res = await readProject(path)
+    if (!res.ok) return { ok: false, error: res.error }
+    try {
+      registry.clearDynamicBlocks()
+      importProject(res.data.files, {
+        dataRegistry: dataReg, componentStore: compStore, blockRegistry: registry, canvas
+      }, { replace: true })
+    } catch (err) {
+      return { ok: false, error: `Gagal membuka project: ${err.message}` }
+    }
+    runner.setProjectPath(path)
+    return { ok: true }
+  }
+
   // Saat reload dengan projectPath tersimpan, sinkronkan canvas dari folder.
   async function syncOnBoot() {
     await runner.checkServer()
@@ -88,5 +106,5 @@ export function useProjectWorkspace({ onKeepLocal } = {}) {
     onKeepLocal?.()
   }
 
-  return { showReloadConfirm, closeProject, syncOnBoot, loadFromDisk, keepLocal }
+  return { showReloadConfirm, closeProject, openProject, syncOnBoot, loadFromDisk, keepLocal }
 }

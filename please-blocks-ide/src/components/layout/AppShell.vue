@@ -8,12 +8,13 @@ import DataManager       from '@/components/manager/DataManager.vue'
 import ComponentBuilder  from '@/components/manager/ComponentBuilder.vue'
 import EnvEditor         from '@/components/manager/EnvEditor.vue'
 import TestRunner        from '@/components/runner/TestRunner.vue'
-import ExportModal       from '@/components/export/ExportModal.vue'
 import ImportModal       from '@/components/export/ImportModal.vue'
+import ExportModal       from '@/components/export/ExportModal.vue'
 import ProjectImportModal from '@/components/export/ProjectImportModal.vue'
 import ReportViewer      from '@/components/runner/ReportViewer.vue'
 import TopbarMenu        from '@/components/layout/TopbarMenu.vue'
 import ProjectGate       from '@/components/layout/ProjectGate.vue'
+import DirectoryPicker   from '@/components/shared/DirectoryPicker.vue'
 import { useRunnerStore }     from '@/model/stores/runnerStore.js'
 import { useCanvasStore }    from '@/model/stores/canvasStore.js'
 import { useComponentStore } from '@/model/stores/componentStore.js'
@@ -28,7 +29,7 @@ const compStore = useComponentStore()
 
 // ── ViewModel (composables) ────────────────────────────────────
 const { saveState, saveMessage, triggerSave } = useSaveProject()
-const { showReloadConfirm, closeProject, syncOnBoot, loadFromDisk, keepLocal } =
+const { showReloadConfirm, openProject, syncOnBoot, loadFromDisk, keepLocal } =
   useProjectWorkspace({ onKeepLocal: triggerSave })
 const { triggerRun } = useTestRunnerControl()
 const { inspectorHeightPct, isResizing, panelRef, startResize } = usePanelResize(55)
@@ -44,6 +45,13 @@ const showExportModal      = ref(false)
 const showImportModal      = ref(false)
 const showProjectImportModal = ref(false)
 const showRightPanel       = ref(true)
+
+// Open Project dari menu File → picker folder → buka sebagai workspace baru
+const showOpenPicker = ref(false)
+async function onOpenProject(path) {
+  showOpenPicker.value = false
+  await openProject(path)
+}
 
 // Buka ComponentBuilder otomatis saat double-click block component di canvas
 watch(() => compStore.builderTargetCompId, (compId) => {
@@ -91,6 +99,11 @@ const runnerStatusColor = computed(() => {
 
         <!-- Menu: File (import / export / project) -->
         <TopbarMenu label="File" icon="📁">
+          <div class="menu-head">Project</div>
+          <button class="menu-item" @click="showOpenPicker = true">
+            <span class="mi">📂</span> Open/New Project
+          </button>
+          <div class="menu-sep"></div>
           <div class="menu-head">Import</div>
           <button class="menu-item" @click="showImportModal = true">
             <span class="mi">📥</span> Import .spec.js
@@ -102,11 +115,6 @@ const runnerStatusColor = computed(() => {
           <div class="menu-head">Export</div>
           <button class="menu-item" @click="showExportModal = true">
             <span class="mi">📦</span> Export ZIP
-          </button>
-          <div class="menu-sep"></div>
-          <div class="menu-head">Project</div>
-          <button class="menu-item" @click="closeProject">
-            <span class="mi">✖</span> Close Project
           </button>
         </TopbarMenu>
 
@@ -230,9 +238,10 @@ const runnerStatusColor = computed(() => {
       @close="closeComponentBuilder"
     />
     <EnvEditor         v-if="showEnvEditor"        @close="showEnvEditor = false" />
-    <ExportModal       v-if="showExportModal"      @close="showExportModal = false" />
     <ImportModal       v-if="showImportModal"      @close="showImportModal = false" />
+    <ExportModal       v-if="showExportModal"      @close="showExportModal = false" />
     <ReportViewer      v-if="runner.showReport"   @close="runner.showReport = false" />
+    <DirectoryPicker   v-if="showOpenPicker"        @select="onOpenProject" @close="showOpenPicker = false" />
 
     <!-- Status bar -->
     <footer class="statusbar">
