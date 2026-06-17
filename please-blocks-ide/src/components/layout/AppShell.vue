@@ -15,6 +15,7 @@ import ReportViewer      from '@/components/runner/ReportViewer.vue'
 import TopbarMenu        from '@/components/layout/TopbarMenu.vue'
 import ProjectGate       from '@/components/layout/ProjectGate.vue'
 import { useRunnerStore }     from '@/model/stores/runnerStore.js'
+import { useCanvasStore }    from '@/model/stores/canvasStore.js'
 import { useComponentStore } from '@/model/stores/componentStore.js'
 import { useSaveProject }      from '@/composables/useSaveProject.js'
 import { useProjectWorkspace } from '@/composables/useProjectWorkspace.js'
@@ -22,6 +23,7 @@ import { useTestRunnerControl }from '@/composables/useTestRunnerControl.js'
 import { usePanelResize }      from '@/composables/usePanelResize.js'
 
 const runner    = useRunnerStore()
+const canvas    = useCanvasStore()   // dipakai template untuk guard tombol (ada feature?)
 const compStore = useComponentStore()
 
 // ── ViewModel (composables) ────────────────────────────────────
