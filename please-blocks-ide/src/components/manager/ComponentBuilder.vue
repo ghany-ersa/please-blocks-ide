@@ -20,7 +20,8 @@ import { usePaletteFilter } from '@/composables/usePaletteFilter.js'
 import StepCard from '@/components/shared/StepCard.vue'
 
 const props = defineProps({
-  initialCompId: { type: String, default: null }
+  initialCompId: { type: String, default: null },
+  mode:          { type: String, default: 'modal' }   // 'modal' | 'panel'
 })
 const emit   = defineEmits(['close'])
 const compStore = useComponentStore()
@@ -314,8 +315,8 @@ const activeTab = ref('builder')
 </script>
 
 <template>
-  <div class="modal-overlay" @click.self="emit('close')">
-    <div class="modal">
+  <div :class="mode === 'panel' ? 'panel-root' : 'modal-overlay'" @click.self="mode === 'modal' && emit('close')">
+    <div :class="mode === 'panel' ? 'panel-box' : 'modal'">
 
       <!-- Header -->
       <div class="modal-header">
@@ -324,7 +325,7 @@ const activeTab = ref('builder')
           <button :class="['mtab', { active: activeTab === 'builder' }]" @click="activeTab = 'builder'">Builder</button>
           <button :class="['mtab', { active: activeTab === 'preview' }]" @click="activeTab = 'preview'">Code Preview</button>
         </div>
-        <button class="modal-close" @click="emit('close')">×</button>
+        <button v-if="mode === 'modal'" class="modal-close" @click="emit('close')">×</button>
       </div>
 
       <!-- BUILDER TAB -->
@@ -605,6 +606,12 @@ const activeTab = ref('builder')
   background: #111827; border: 1px solid #1e293b;
   border-radius: 12px; display: flex; flex-direction: column;
   overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+/* Mode panel — tampil in-area (lebar penuh), bukan overlay */
+.panel-root { flex: 1; min-width: 0; height: 100%; display: flex; }
+.panel-box {
+  flex: 1; min-width: 0; height: 100%;
+  background: #111827; display: flex; flex-direction: column; overflow: hidden;
 }
 
 /* Header */

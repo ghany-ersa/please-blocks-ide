@@ -14,6 +14,7 @@ import { ref, computed } from 'vue'
 import { useDataRegistry }  from '@/model/stores/dataRegistry.js'
 import { generateDataFile }  from '@/model/core/factory/DataFactory.js'
 
+const props  = defineProps({ mode: { type: String, default: 'modal' } })  // 'modal' | 'panel'
 const emit   = defineEmits(['close'])
 const dataReg = useDataRegistry()
 
@@ -21,7 +22,7 @@ const dataReg = useDataRegistry()
 const activeFileId   = ref(Object.keys(dataReg.files)[0] || 'main')
 const activeGroupName = ref('')
 const activeEntryName = ref('')
-const activeTab      = ref('data')   // 'data' | 'env' | 'preview'
+const activeTab      = ref('data')   // 'data' | 'preview' (env kini di tab activity bar)
 
 // Selalu reset group/entry saat pindah file
 function selectFile(id) {
@@ -155,29 +156,6 @@ function removeField(fieldName) {
   dataReg.removeField(activeFileId.value, activeGroupName.value, activeEntryName.value, fieldName)
 }
 
-// ── Env variable actions ─────────────────────────────────────────
-const addingEnvVar  = ref(false)
-const newEnvKey     = ref('')
-const newEnvValue   = ref('')
-const envKeyRef     = ref(null)
-
-function openAddEnvVar() {
-  newEnvKey.value   = ''
-  newEnvValue.value = ''
-  addingEnvVar.value = true
-  setTimeout(() => envKeyRef.value?.focus(), 50)
-}
-
-function submitNewEnvVar() {
-  const key = newEnvKey.value.trim().toUpperCase()
-  if (!key) return
-  dataReg.addEnvVar(key)
-  if (newEnvValue.value) dataReg.setEnvVar(key, newEnvValue.value)
-  addingEnvVar.value = false
-  newEnvKey.value    = ''
-  newEnvValue.value  = ''
-}
-
 // ── Preview ───────────────────────────────────────────────────────
 const previewCode = computed(() =>
   activeFile.value ? generateDataFile(activeFile.value, dataReg.env) : ''
@@ -199,8 +177,8 @@ async function copyPreview() {
 </script>
 
 <template>
-  <div class="modal-overlay" @click.self="emit('close')">
-    <div class="modal">
+  <div :class="mode === 'panel' ? 'panel-root' : 'modal-overlay'" @click.self="mode === 'modal' && emit('close')">
+    <div :class="mode === 'panel' ? 'panel-box' : 'modal'">
 
       <!-- Modal header -->
       <div class="modal-header">
@@ -250,10 +228,9 @@ async function copyPreview() {
         <!-- Right tabs -->
         <div class="right-tabs">
           <button :class="['mtab', { active: activeTab === 'data' }]"    @click="activeTab = 'data'">Data</button>
-          <button :class="['mtab', { active: activeTab === 'env' }]"     @click="activeTab = 'env'">ENV</button>
           <button :class="['mtab', { active: activeTab === 'preview' }]" @click="activeTab = 'preview'">Preview</button>
         </div>
-        <button class="modal-close" @click="emit('close')">×</button>
+        <button v-if="mode === 'modal'" class="modal-close" @click="emit('close')">×</button>
       </div>
 
       <!-- File description row -->
@@ -401,59 +378,6 @@ async function copyPreview() {
       </div>
 
       <!-- ENV TAB -->
-      <div v-else-if="activeTab === 'env'" class="modal-body env-body">
-        <div class="env-header">
-          <p class="env-desc">
-            Variabel tersimpan di <code>.env</code> dan berlaku untuk semua file data.
-          </p>
-          <button v-if="!addingEnvVar" class="add-btn" @click="openAddEnvVar">+ Variable</button>
-        </div>
-
-        <div class="env-list">
-          <!-- Existing env vars -->
-          <div v-for="(val, key) in dataReg.env" :key="key" class="env-row">
-            <span class="env-key">{{ key }}</span>
-            <span class="env-eq">=</span>
-            <input class="env-val" :value="val"
-              @input="dataReg.setEnvVar(key, $event.target.value)" />
-            <button class="item-del" @click="dataReg.removeEnvVar(key)">×</button>
-          </div>
-
-          <!-- Inline form tambah env var baru -->
-          <div v-if="addingEnvVar" class="add-field-form">
-            <div class="aff-row">
-              <span class="aff-label" style="color:#c084fc">KEY</span>
-              <input
-                ref="envKeyRef"
-                v-model="newEnvKey"
-                class="aff-input mono"
-                placeholder="NAMA_VARIABLE (huruf kapital)"
-                @keyup.enter="submitNewEnvVar"
-                @keyup.escape="addingEnvVar = false"
-              />
-            </div>
-            <div class="aff-row">
-              <span class="aff-label">Nilai</span>
-              <input
-                v-model="newEnvValue"
-                class="aff-input"
-                placeholder="nilai awal (opsional)"
-                @keyup.enter="submitNewEnvVar"
-                @keyup.escape="addingEnvVar = false"
-              />
-            </div>
-            <div class="aff-actions">
-              <button class="aff-ok" @click="submitNewEnvVar">✓ Tambah</button>
-              <button class="aff-cancel" @click="addingEnvVar = false">Batal</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="env-note">
-          Referensi di data: <code>process.env.BASE_URL</code> · <code>process.env.ACCOUNT_USERNAME</code>
-        </div>
-      </div>
-
       <!-- PREVIEW TAB -->
       <div v-else-if="activeTab === 'preview'" class="modal-body preview-body">
         <div class="preview-actions">
@@ -482,6 +406,12 @@ async function copyPreview() {
   background: #111827; border: 1px solid #1e293b;
   border-radius: 12px; display: flex; flex-direction: column;
   overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+/* Mode panel — tampil in-area (lebar penuh), bukan overlay */
+.panel-root { flex: 1; min-width: 0; height: 100%; display: flex; }
+.panel-box {
+  flex: 1; min-width: 0; height: 100%;
+  background: #111827; display: flex; flex-direction: column; overflow: hidden;
 }
 
 /* Header */

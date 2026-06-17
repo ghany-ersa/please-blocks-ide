@@ -13,6 +13,7 @@ import ExportModal       from '@/components/export/ExportModal.vue'
 import ProjectImportModal from '@/components/export/ProjectImportModal.vue'
 import ReportViewer      from '@/components/runner/ReportViewer.vue'
 import TopbarMenu        from '@/components/layout/TopbarMenu.vue'
+import ActivityBar       from '@/components/layout/ActivityBar.vue'
 import ProjectGate       from '@/components/layout/ProjectGate.vue'
 import DirectoryPicker   from '@/components/shared/DirectoryPicker.vue'
 import { useRunnerStore }     from '@/model/stores/runnerStore.js'
@@ -38,10 +39,9 @@ const { inspectorHeightPct, isResizing, panelRef, startResize } = usePanelResize
 onMounted(async () => { await syncOnBoot(); markSaved() })
 
 // ── State UI lokal (murni presentasi) ──────────────────────────
-const showDataManager      = ref(false)
-const showComponentBuilder = ref(false)
+// View area utama: 'canvas' | 'data' | 'components' | 'env'
+const activeView           = ref('canvas')
 const builderInitialCompId = ref(null)
-const showEnvEditor        = ref(false)
 const showExportModal      = ref(false)
 const showImportModal      = ref(false)
 const showProjectImportModal = ref(false)
@@ -55,19 +55,13 @@ async function onOpenProject(path) {
   if (res?.ok) markSaved()   // baru dibuka dari disk → belum dirty
 }
 
-// Buka ComponentBuilder otomatis saat double-click block component di canvas
+// Buka view Components otomatis saat double-click block component di canvas
 watch(() => compStore.builderTargetCompId, (compId) => {
   if (compId) {
     builderInitialCompId.value = compId
-    showComponentBuilder.value = true
+    activeView.value = 'components'
   }
 })
-
-function closeComponentBuilder() {
-  showComponentBuilder.value = false
-  builderInitialCompId.value = null
-  compStore.clearBuilderTarget()
-}
 
 // Status bar label runner
 const runnerStatusLabel = computed(() => {
@@ -117,19 +111,6 @@ const runnerStatusColor = computed(() => {
           <div class="menu-head">Export</div>
           <button class="menu-item" @click="showExportModal = true">
             <span class="mi">📦</span> Export ZIP
-          </button>
-        </TopbarMenu>
-
-        <!-- Menu: Workspace (editor & panel) -->
-        <TopbarMenu
-          label="Workspace" icon="⊞"
-          :active="showDataManager || showComponentBuilder || showEnvEditor"
-        >
-          <button class="menu-item" :class="{ active: showDataManager }" @click="showDataManager = true">
-            <span class="mi">📊</span> Data Manager
-          </button>
-          <button class="menu-item" :class="{ active: showComponentBuilder }" @click="showComponentBuilder = true; builderInitialCompId = null">
-            <span class="mi">📦</span> Components
           </button>
         </TopbarMenu>
       </div>
@@ -201,21 +182,27 @@ const runnerStatusColor = computed(() => {
 
     <!-- Main area -->
     <div class="main" :class="{ 'runner-open': runner.visible }">
-      <BlockPalette />
+      <ActivityBar v-model="activeView" />
 
-      <!-- Canvas + Runner stack -->
-      <div class="canvas-stack">
+      <!-- Palette hanya relevan untuk canvas -->
+      <BlockPalette v-show="activeView === 'canvas'" />
+
+      <!-- Canvas + Runner stack (v-show agar state/scroll terjaga saat pindah view) -->
+      <div class="canvas-stack" v-show="activeView === 'canvas'">
         <CanvasEditor />
-
-        <!-- Test Runner panel (bawah canvas) -->
         <div v-if="runner.visible" class="runner-pane">
           <TestRunner />
         </div>
       </div>
 
-      <!-- Right panel: Inspector + CodePreview -->
+      <!-- View manager menggantikan canvas di area utama -->
+      <DataManager       v-if="activeView === 'data'"       mode="panel" />
+      <ComponentBuilder  v-if="activeView === 'components'"  mode="panel" :initial-comp-id="builderInitialCompId" />
+      <EnvEditor         v-if="activeView === 'env'"         mode="panel" />
+
+      <!-- Right panel: Inspector + CodePreview (hanya untuk canvas) -->
       <div
-        v-if="showRightPanel"
+        v-if="showRightPanel && activeView === 'canvas'"
         class="right-panel"
         ref="panelRef"
       >
@@ -233,14 +220,7 @@ const runnerStatusColor = computed(() => {
       </div>
     </div>
 
-    <!-- Modals -->
-    <DataManager       v-if="showDataManager"      @close="showDataManager = false" />
-    <ComponentBuilder
-      v-if="showComponentBuilder"
-      :initial-comp-id="builderInitialCompId"
-      @close="closeComponentBuilder"
-    />
-    <EnvEditor         v-if="showEnvEditor"        @close="showEnvEditor = false" />
+    <!-- Modals (Import/Export/Report) -->
     <ImportModal       v-if="showImportModal"      @close="showImportModal = false" />
     <ExportModal       v-if="showExportModal"      @close="showExportModal = false" />
     <ReportViewer      v-if="runner.showReport"   @close="runner.showReport = false" />

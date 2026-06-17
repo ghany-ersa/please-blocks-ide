@@ -8,16 +8,34 @@
 import { ref, computed } from 'vue'
 import { useDataRegistry } from '@/model/stores/dataRegistry.js'
 
+const props = defineProps({ mode: { type: String, default: 'modal' } })  // 'modal' | 'panel'
 const emit = defineEmits(['close'])
 const dataReg = useDataRegistry()
 
-// Working copy lokal agar perubahan bisa di-cancel
-const localEnv = ref(structuredClone(dataReg.env))
+// Working copy lokal agar perubahan bisa di-cancel.
+// env flat (KEY→string) → spread cukup; hindari structuredClone pada proxy
+// reactive Pinia (bisa lempar DataCloneError → komponen blank).
+const localEnv = ref({ ...dataReg.env })
 
 // State tambah entry baru
 const newKey   = ref('')
 const newValue = ref('')
 const addError = ref('')
+
+// Sanitasi nama variabel saat diketik: hanya A-Z 0-9 _, tak boleh diawali angka,
+// otomatis uppercase. Mencegah input di luar kaidah nama ENV sejak awal.
+function sanitizeKey(raw) {
+  return String(raw)
+    .toUpperCase()
+    .replace(/[^A-Z0-9_]/g, '')   // buang karakter ilegal (spasi, simbol, dll)
+    .replace(/^[0-9]+/, '')        // tak boleh diawali angka
+}
+
+function onNewKeyInput(e) {
+  const clean = sanitizeKey(e.target.value)
+  newKey.value = clean
+  e.target.value = clean         // pantulkan ke input agar karakter ilegal tak tampil
+}
 
 // Mode tampil (hidden/visible) per key — untuk password
 const showValue = ref({})
@@ -32,39 +50,54 @@ function isSecret(key) {
 
 const envLines = computed(() => Object.entries(localEnv.value))
 
+// Mode panel: auto-save langsung ke store tiap perubahan (tanpa tombol Simpan).
+// Mode modal: ubah working-copy dulu, di-apply saat tombol Simpan.
+const autoSave = computed(() => props.mode === 'panel')
+
+function commit() {
+  if (!autoSave.value) return
+  dataReg.env = { ...localEnv.value }
+  dataReg.persist?.()
+}
+
 function updateValue(key, val) {
   localEnv.value[key] = val
+  commit()
 }
 
 function addEntry() {
   addError.value = ''
-  const k = newKey.value.trim().toUpperCase().replace(/\s+/g, '_')
-  if (!k) { addError.value = 'Nama variabel wajib diisi'; return }
-  if (!/^[A-Z_][A-Z0-9_]*$/.test(k)) {
-    addError.value = 'Format tidak valid (gunakan huruf besar dan underscore)'; return
-  }
+  const k = sanitizeKey(newKey.value)   // sudah disaring saat input; ini backstop
+  if (!k) { addError.value = 'Nama variabel wajib diisi (huruf, angka, underscore)'; return }
   if (localEnv.value[k] !== undefined) {
     addError.value = 'Variabel sudah ada'; return
   }
   localEnv.value[k] = newValue.value
   newKey.value   = ''
   newValue.value = ''
+  commit()
 }
 
 function removeEntry(key) {
   const clone = { ...localEnv.value }
   delete clone[key]
   localEnv.value = clone
+  commit()
 }
 
 function save() {
-  dataReg.env = structuredClone(localEnv.value)
+  dataReg.env = { ...localEnv.value }
   dataReg.persist?.()
-  emit('close')
+  if (props.mode === 'modal') emit('close')
 }
 
 function cancel() {
-  emit('close')
+  if (props.mode === 'modal') {
+    emit('close')
+  } else {
+    // Panel: revert working copy ke env tersimpan, tetap di view
+    localEnv.value = { ...dataReg.env }
+  }
 }
 
 // Preview .env teks
@@ -93,8 +126,8 @@ function downloadEnv() {
 </script>
 
 <template>
-  <div class="overlay" @click.self="cancel">
-    <div class="modal">
+  <div :class="mode === 'panel' ? 'panel-root' : 'overlay'" @click.self="mode === 'modal' && cancel()">
+    <div :class="mode === 'panel' ? 'panel-box' : 'modal'">
 
       <!-- Header -->
       <div class="modal-header">
@@ -107,7 +140,7 @@ function downloadEnv() {
           </button>
           <button class="btn-dl" @click="downloadEnv">⬇ .env</button>
         </div>
-        <button class="btn-x" @click="cancel">×</button>
+        <button v-if="mode === 'modal'" class="btn-x" @click="cancel">×</button>
       </div>
 
       <!-- Body: 2 kolom — table kiri, preview kanan -->
@@ -159,8 +192,9 @@ function downloadEnv() {
             <div class="env-row add-row">
               <input
                 class="new-key-input"
-                v-model="newKey"
+                :value="newKey"
                 placeholder="NAMA_VARIABEL"
+                @input="onNewKeyInput"
                 @keyup.enter="addEntry"
                 spellcheck="false"
               />
@@ -170,7 +204,7 @@ function downloadEnv() {
                 placeholder="nilai"
                 @keyup.enter="addEntry"
               />
-              <button class="btn-add" @click="addEntry">+ Tambah</button>
+              <button class="btn-add" @click="addEntry">+</button>
             </div>
 
             <div v-if="addError" class="add-error">{{ addError }}</div>
@@ -192,8 +226,8 @@ function downloadEnv() {
 
       </div>
 
-      <!-- Footer -->
-      <div class="modal-footer">
+      <!-- Footer: hanya di mode modal (panel auto-save) -->
+      <div v-if="mode === 'modal'" class="modal-footer">
         <div class="footer-info">
           {{ envLines.length }} variabel · Perubahan hanya tersimpan di IDE (localStorage)
         </div>
@@ -223,6 +257,12 @@ function downloadEnv() {
   display: flex; flex-direction: column;
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+/* Mode panel — tampil in-area (lebar penuh), bukan overlay */
+.panel-root { flex: 1; min-width: 0; height: 100%; display: flex; }
+.panel-box {
+  flex: 1; min-width: 0; height: 100%;
+  background: #111827; display: flex; flex-direction: column; overflow: hidden;
 }
 
 /* Header */
