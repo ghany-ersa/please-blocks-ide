@@ -29,40 +29,40 @@ const open = ref(true)
 
 <style scoped>
 .category {
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 .cat-header {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 6px;
+  gap: var(--space-1-5);
+  padding: var(--pad-btn-y) var(--space-1-5);
   background: none;
   border: none;
   cursor: pointer;
-  border-radius: 5px;
-  color: #64748b;
-  transition: background 0.1s, color 0.1s;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  transition: background var(--transition-fast), color var(--transition-fast);
   text-align: left;
 }
 .cat-header:hover {
-  background: rgba(255,255,255,0.04);
-  color: #94a3b8;
+  background: var(--color-white-4);
+  color: var(--color-text-secondary);
 }
-.cat-icon  { font-size: 14px; }
-.cat-label { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; flex: 1; }
+.cat-icon  { font-size: var(--text-md); }
+.cat-label { font-size: var(--text-sm); font-weight: var(--font-bold); letter-spacing: var(--tracking-wider); text-transform: uppercase; flex: 1; }
 .cat-count {
-  font-size: 11px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 10px;
-  padding: 1px 5px;
-  color: #475569;
+  font-size: var(--text-xs);
+  background: var(--color-white-6);
+  border-radius: var(--radius-pill);
+  padding: var(--pad-badge-y) var(--pad-badge-x);
+  color: var(--color-text-faint);
 }
 .cat-arrow {
-  font-size: 16px;
-  transition: transform 0.2s;
+  font-size: var(--text-xl);
+  transition: transform var(--transition-slow);
   display: inline-block;
 }
 .cat-arrow.rotated { transform: rotate(90deg); }
-.cat-blocks { padding: 4px 0 4px 4px; }
+.cat-blocks { padding: var(--space-1) 0 var(--space-1) var(--space-1); }
 </style>

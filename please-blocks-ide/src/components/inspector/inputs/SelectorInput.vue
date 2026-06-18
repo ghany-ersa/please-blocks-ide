@@ -176,14 +176,14 @@ function applyHint(hint) {
 .label-text { display: flex; align-items: center; gap: 3px; }
 
 .sel-badge {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   padding: 1px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   border: 1px solid;
-  font-weight: 700;
+  font-weight: var(--font-bold);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: all 0.15s;
+  letter-spacing: var(--tracking-wide);
+  transition: all var(--transition-base);
 }
 
 /* Input wrapper dengan tombol copy */
@@ -196,7 +196,7 @@ function applyHint(hint) {
   flex: 1;
   padding-right: 28px;
 }
-.input-wrap.has-error .field-input { border-color: #ef4444; }
+.input-wrap.has-error .field-input { border-color: var(--color-danger); }
 
 .btn-copy {
   position: absolute;
@@ -204,63 +204,63 @@ function applyHint(hint) {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 14px;
-  color: #334155;
+  font-size: var(--text-md);
+  color: var(--color-text-dimmed);
   padding: 2px 3px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   transition: all 0.12s;
-  line-height: 1;
+  line-height: var(--leading-none);
 }
-.btn-copy:hover { color: #94a3b8; background: #1e293b; }
-.btn-copy.done  { color: #10b981; }
+.btn-copy:hover { color: var(--color-text-secondary); background: var(--color-border-subtle); }
+.btn-copy.done  { color: var(--color-success); }
 
 /* Error */
 .sel-error {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   font-size: 11.5px;
-  color: #ef4444;
+  color: var(--color-danger);
   margin-top: 3px;
-  line-height: 1.4;
+  line-height: var(--leading-tight);
 }
-.error-icon { font-size: 12px; flex-shrink: 0; }
+.error-icon { font-size: var(--text-sm); flex-shrink: 0; }
 
 /* Hint chips */
 .sel-hints {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 5px;
+  gap: var(--space-1);
+  margin-top: var(--space-2-5);
 }
 .hint-chip {
-  font-size: 11px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  font-weight: var(--font-semibold);
   padding: 2px 7px;
-  background: #1a2235;
-  border: 1px solid #1e293b;
-  border-radius: 4px;
-  color: #475569;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-faint);
   cursor: pointer;
   transition: all 0.12s;
 }
 .hint-chip:hover {
-  color: var(--chip-color, #94a3b8);
-  border-color: var(--chip-color, #334155);
-  background: color-mix(in srgb, var(--chip-color, #334155) 10%, #1a2235);
+  color: var(--chip-color, var(--color-text-secondary));
+  border-color: var(--chip-color, var(--color-text-dimmed));
+  background: color-mix(in srgb, var(--chip-color, var(--color-text-dimmed)) 10%, var(--color-bg-surface));
 }
 
 /* Guide teks */
 .sel-guide {
-  font-size: 11px;
-  margin-top: 4px;
+  font-size: var(--text-xs);
+  margin-top: var(--space-1);
   opacity: 0.7;
 }
 .sel-guide code {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  background: #1e293b;
-  padding: 1px 4px;
-  border-radius: 3px;
+  font-family: var(--font-mono);
+  background: var(--color-border-subtle);
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-sm);
 }
 </style>

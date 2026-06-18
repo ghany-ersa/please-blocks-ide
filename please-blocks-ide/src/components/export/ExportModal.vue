@@ -174,111 +174,111 @@ function triggerDownload(blob, filename) {
 <style scoped>
 .modal-overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.65);
+  background: var(--color-black);
   display: flex; align-items: center; justify-content: center;
-  z-index: 100;
+  z-index: var(--z-modal);
 }
 .modal {
   width: 900px; max-width: 96vw;
   height: 640px; max-height: 92vh;
-  background: #111827; border: 1px solid #1e293b;
-  border-radius: 12px; display: flex; flex-direction: column;
-  overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  background: var(--color-bg-surface); border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-2xl); display: flex; flex-direction: column;
+  overflow: hidden; box-shadow: var(--shadow-xl);
 }
 
 /* Header */
 .modal-header {
-  display: flex; align-items: center; gap: 10px;
-  padding: 0 16px; height: 46px;
-  background: #0f1117; border-bottom: 1px solid #1e293b; flex-shrink: 0;
+  display: flex; align-items: center; gap: var(--space-2-5);
+  padding: 0 var(--space-4); height: 46px;
+  background: var(--color-bg-base); border-bottom: 1px solid var(--color-border-subtle); flex-shrink: 0;
 }
-.modal-title  { font-size: 15px; font-weight: 700; color: #e2e8f0; }
-.file-count   { font-size: 12px; color: #475569; background: #1e293b; padding: 2px 8px; border-radius: 10px; }
-.modal-actions{ flex: 1; display: flex; justify-content: flex-end; gap: 8px; }
+.modal-title  { font-size: var(--text-lg); font-weight: var(--font-bold); color: var(--color-text-primary); }
+.file-count   { font-size: var(--text-sm); color: var(--color-text-faint); background: var(--color-border-subtle); padding: 2px var(--space-2); border-radius: 10px; }
+.modal-actions{ flex: 1; display: flex; justify-content: flex-end; gap: var(--space-2); }
 .btn-dl {
-  padding: 5px 14px; border-radius: 5px; border: none; cursor: pointer;
-  background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3);
-  color: #818cf8; font-size: 13px; font-weight: 600;
-  transition: all 0.15s;
+  padding: var(--pad-btn-y) 14px; border-radius: var(--radius-md); border: none; cursor: pointer;
+  background: var(--color-primary-bg); border: 1px solid rgba(99,102,241,0.3);
+  color: var(--color-primary-light); font-size: var(--text-base); font-weight: var(--font-semibold);
+  transition: all var(--transition-base);
 }
 .btn-dl:hover:not(:disabled) { background: rgba(99,102,241,0.25); }
 .btn-dl:disabled { opacity: 0.5; cursor: default; }
 .modal-close {
   background: none; border: none; cursor: pointer;
-  color: #475569; font-size: 22px; line-height: 1; padding: 0;
+  color: var(--color-text-faint); font-size: var(--text-icon); line-height: var(--leading-none); padding: 0;
 }
-.modal-close:hover { color: #e2e8f0; }
+.modal-close:hover { color: var(--color-text-primary); }
 
 /* File tabs bar */
 .file-tabs-bar {
-  display: flex; gap: 2px; padding: 6px 12px;
+  display: flex; gap: 2px; padding: 6px var(--space-3);
   overflow-x: auto; flex-shrink: 0;
-  background: #0f1117; border-bottom: 1px solid #1e293b;
+  background: var(--color-bg-base); border-bottom: 1px solid var(--color-border-subtle);
 }
 .file-tab {
-  display: flex; align-items: center; gap: 4px;
-  padding: 4px 10px; border-radius: 5px; border: 1px solid transparent;
-  font-size: 12px; font-family: monospace; cursor: pointer;
-  color: #475569; background: transparent; white-space: nowrap;
+  display: flex; align-items: center; gap: var(--space-1);
+  padding: var(--space-1) var(--space-2-5); border-radius: var(--radius-md); border: 1px solid transparent;
+  font-size: var(--text-sm); font-family: monospace; cursor: pointer;
+  color: var(--color-text-faint); background: transparent; white-space: nowrap;
   transition: all 0.12s;
 }
-.file-tab:hover  { background: rgba(255,255,255,0.03); color: #94a3b8; }
+.file-tab:hover  { background: var(--color-white-3); color: var(--color-text-secondary); }
 .file-tab.active {
   background: color-mix(in srgb, var(--cat) 15%, transparent);
   border-color: color-mix(in srgb, var(--cat) 40%, transparent);
   color: var(--cat);
 }
-.tab-icon     { font-size: 13px; }
-.tab-name     { font-weight: 600; }
-.tab-disabled { font-size: 11px; color: #4b5563; }
+.tab-icon     { font-size: var(--text-base); }
+.tab-name     { font-weight: var(--font-semibold); }
+.tab-disabled { font-size: var(--text-xs); color: #4b5563; }
 
 /* File body */
 .file-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .file-toolbar {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 14px; background: #0f1117;
-  border-bottom: 1px solid #1e293b; flex-shrink: 0;
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: 6px 14px; background: var(--color-bg-base);
+  border-bottom: 1px solid var(--color-border-subtle); flex-shrink: 0;
 }
-.file-path  { font-size: 12px; font-family: monospace; color: #64748b; flex: 1; display: flex; align-items: center; gap: 6px; }
-.cat-badge  { font-size: 10.5px; padding: 1px 6px; border-radius: 3px; font-weight: 700; }
+.file-path  { font-size: var(--text-sm); font-family: monospace; color: var(--color-text-muted); flex: 1; display: flex; align-items: center; gap: 6px; }
+.cat-badge  { font-size: 10.5px; padding: 1px 6px; border-radius: var(--radius-sm); font-weight: var(--font-bold); }
 .disabled-badge {
-  font-size: 11px; color: #4b5563; background: rgba(75,85,99,0.1);
+  font-size: var(--text-xs); color: #4b5563; background: rgba(75,85,99,0.1);
   border-radius: 4px; padding: 2px 7px;
 }
 .toolbar-right { display: flex; gap: 6px; }
 .btn-copy {
-  padding: 3px 10px; font-size: 12px;
-  background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.25);
-  border-radius: 4px; color: #6366f1; cursor: pointer; transition: all 0.15s;
+  padding: 3px var(--space-2-5); font-size: var(--text-sm);
+  background: var(--color-primary-bg); border: 1px solid var(--color-primary-border);
+  border-radius: 4px; color: var(--color-primary); cursor: pointer; transition: all var(--transition-base);
 }
-.btn-copy.done { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: #10b981; }
+.btn-copy.done { background: var(--color-success-bg); border-color: var(--color-success-border); color: var(--color-success); }
 .btn-dl-single {
-  padding: 3px 8px; font-size: 13px;
-  background: rgba(255,255,255,0.04); border: 1px solid #1e293b;
-  border-radius: 4px; color: #475569; cursor: pointer;
+  padding: 3px var(--space-2); font-size: var(--text-base);
+  background: var(--color-white-4); border: 1px solid var(--color-border-subtle);
+  border-radius: 4px; color: var(--color-text-faint); cursor: pointer;
 }
-.btn-dl-single:hover { color: #94a3b8; border-color: #334155; }
+.btn-dl-single:hover { color: var(--color-text-secondary); border-color: var(--color-border-default); }
 
-.code-wrap { flex: 1; overflow: auto; background: #0a0d14; }
+.code-wrap { flex: 1; overflow: auto; background: var(--color-bg-deepest); }
 .code {
-  margin: 0; padding: 14px 16px;
-  font-family: 'SF Mono','Fira Code',monospace; font-size: 12px;
-  line-height: 1.75; color: #94a3b8; white-space: pre;
+  margin: 0; padding: 14px var(--space-4);
+  font-family: var(--font-mono); font-size: var(--text-sm);
+  line-height: 1.75; color: var(--color-text-secondary); white-space: pre;
 }
-.code :deep(.cm)       { color: #334155; font-style: italic; }
-.code :deep(.kw)       { color: #c084fc; }
-.code :deep(.str)      { color: #fbbf24; }
-.code :deep(.fn)       { color: #6ee7b7; }
-.code :deep(.obj)      { color: #6ee7b7; }
-.code :deep(.flow)     { color: #818cf8; }
-.code :deep(.data)     { color: #38bdf8; }
-.code :deep(.data-key) { color: #7dd3fc; }
+.code :deep(.cm)       { color: var(--syntax-comment); font-style: italic; }
+.code :deep(.kw)       { color: var(--syntax-keyword); }
+.code :deep(.str)      { color: var(--syntax-string); }
+.code :deep(.fn)       { color: var(--syntax-function); }
+.code :deep(.obj)      { color: var(--syntax-function); }
+.code :deep(.flow)     { color: var(--color-primary-light); }
+.code :deep(.data)     { color: var(--syntax-data); }
+.code :deep(.data-key) { color: var(--syntax-data-key); }
 
 /* Footer */
 .modal-footer {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 16px; background: #0a0d14;
-  border-top: 1px solid #1e293b; flex-shrink: 0;
-  font-size: 12px; color: #334155;
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: 6px var(--space-4); background: var(--color-bg-deepest);
+  border-top: 1px solid var(--color-border-subtle); flex-shrink: 0;
+  font-size: var(--text-sm); color: var(--color-text-dimmed);
 }
 </style>

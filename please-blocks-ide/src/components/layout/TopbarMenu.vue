@@ -50,16 +50,16 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   padding: 4px 8px 4px 0px;
   background: none;
   border: none;
-  font-size: 12px;
-  color: #64748b;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.15s;
+  transition: color var(--transition-base);
 }
-.menu-trigger:hover      { color: #94a3b8; }
-.menu-trigger.active     { color: #818cf8; }
-.menu-trigger .mi        { font-size: 13px; }
-.caret { font-size: 10px; opacity: 0.55; transition: transform 0.15s; }
+.menu-trigger:hover      { color: var(--color-text-secondary); }
+.menu-trigger.active     { color: var(--color-primary-light); }
+.menu-trigger .mi        { font-size: var(--text-base); }
+.caret { font-size: var(--text-2xs); opacity: 0.55; transition: transform var(--transition-base); }
 .caret.flip { transform: rotate(180deg); }
 
 .menu-pop {
@@ -67,9 +67,9 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   top: calc(100% + 6px);
   left: 0;
   min-width: 204px;
-  background: #111827;
-  border: 1px solid #1e293b;
-  border-radius: 8px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
   padding: 5px;
   box-shadow: 0 12px 32px rgba(0,0,0,0.45);
   z-index: 120;
@@ -91,18 +91,18 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
   padding: 7px 10px;
   background: none;
   border: none;
-  border-radius: 5px;
-  color: #94a3b8;
-  font-size: 13px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
   text-align: left;
   cursor: pointer;
   transition: background 0.12s, color 0.12s;
   white-space: nowrap;
 }
-.menu-pop :deep(.menu-item:hover)    { background: rgba(255,255,255,0.05); color: #e2e8f0; }
-.menu-pop :deep(.menu-item.active)   { background: rgba(99,102,241,0.15); color: #818cf8; }
-.menu-pop :deep(.menu-item .mi)      { font-size: 15px; width: 16px; text-align: center; }
-.menu-pop :deep(.menu-item .sub)     { margin-left: auto; font-size: 11px; color: #475569; font-family: monospace; }
-.menu-pop :deep(.menu-sep)           { height: 1px; background: #1e293b; margin: 3px 4px; }
-.menu-pop :deep(.menu-head)          { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #475569; padding: 4px 10px 2px; }
+.menu-pop :deep(.menu-item:hover)    { background: var(--color-white-5); color: var(--color-text-primary); }
+.menu-pop :deep(.menu-item.active)   { background: var(--color-primary-bg); color: var(--color-primary-light); }
+.menu-pop :deep(.menu-item .mi)      { font-size: var(--text-lg); width: 16px; text-align: center; }
+.menu-pop :deep(.menu-item .sub)     { margin-left: auto; font-size: var(--text-xs); color: var(--color-text-faint); font-family: monospace; }
+.menu-pop :deep(.menu-sep)           { height: 1px; background: var(--color-border-subtle); margin: 3px 4px; }
+.menu-pop :deep(.menu-head)          { font-size: 10.5px; font-weight: var(--font-bold); letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-faint); padding: 4px 10px 2px; }
 </style>

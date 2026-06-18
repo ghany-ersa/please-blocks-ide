@@ -41,7 +41,7 @@ function onInput(e) {
 <style scoped>
 @import '@/styles/fieldInput.css';
 
-.input-wrap  { display: flex; align-items: center; gap: 6px; }
+.input-wrap  { display: flex; align-items: center; gap: var(--space-1-5); }
 .field-input { flex: 1; width: auto; font-family: monospace; }
-.unit { font-size: 12px; color: #475569; flex-shrink: 0; }
+.unit { font-size: var(--text-sm); color: var(--color-text-faint); flex-shrink: 0; }
 </style>

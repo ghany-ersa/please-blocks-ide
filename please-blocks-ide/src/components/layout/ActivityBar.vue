@@ -36,8 +36,8 @@ const items = [
 .activity-bar {
   width: 48px;
   min-width: 48px;
-  background: #0a0d14;
-  border-right: 1px solid #1e293b;
+  background: var(--color-bg-deepest);
+  border-right: 1px solid var(--color-border-subtle);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -56,13 +56,13 @@ const items = [
   border-left: 2px solid transparent;
   cursor: pointer;
   opacity: 0.55;
-  transition: opacity 0.15s, background 0.15s, border-color 0.15s;
+  transition: opacity var(--transition-base), background var(--transition-base), border-color var(--transition-base);
 }
-.ab-item:hover { opacity: 0.9; background: rgba(255,255,255,0.03); }
+.ab-item:hover { opacity: 0.9; background: var(--color-white-3); }
 .ab-item.active {
   opacity: 1;
-  border-left-color: #6366f1;
-  background: rgba(99,102,241,0.1);
+  border-left-color: var(--color-primary);
+  background: var(--color-primary-bg);
 }
-.ab-icon { font-size: 20px; }
+.ab-icon { font-size: var(--text-3xl); }
 </style>

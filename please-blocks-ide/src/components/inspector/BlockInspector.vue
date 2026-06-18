@@ -209,68 +209,68 @@ function updateField(name, value) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 16px;
+  gap: var(--space-2);
+  padding: var(--space-4);
   text-align: center;
 }
 .empty-icon { font-size: 30px; }
-.inspector-empty p { font-size: 13px; color: #374151; line-height: 1.5; }
-.inspector-error p { font-size: 13px; color: #fca5a5; }
-.inspector-error code { font-family: monospace; font-size: 12px; }
+.inspector-empty p { font-size: var(--text-base); color: var(--color-text-ghost); line-height: var(--leading-normal); }
+.inspector-error p { font-size: var(--text-base); color: var(--color-danger-lighter); }
+.inspector-error code { font-family: monospace; font-size: var(--text-sm); }
 
 /* Header */
 .insp-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: rgba(0,0,0,0.2);
-  border-bottom: 1px solid #1e293b;
+  gap: var(--space-2);
+  padding: var(--space-2-5) var(--space-3);
+  background: var(--color-black-50);
+  border-bottom: 1px solid var(--color-border-subtle);
   flex-shrink: 0;
 }
 .insp-icon { font-size: 20px; flex-shrink: 0; }
 .insp-meta { flex: 1; min-width: 0; }
 .insp-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--block-color, #e2e8f0);
+  font-size: var(--text-md);
+  font-weight: var(--font-bold);
+  color: var(--block-color, var(--color-text-primary));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .insp-type {
-  font-size: 11px;
-  color: #475569;
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--tracking-wider);
   margin-top: 1px;
 }
 .insp-schema-badge {
-  font-size: 11px;
+  font-size: var(--text-xs);
   background: rgba(245,158,11,0.15);
-  color: #f59e0b;
+  color: var(--color-warning);
   border-radius: 10px;
   padding: 2px 7px;
-  font-weight: 700;
+  font-weight: var(--font-bold);
   flex-shrink: 0;
   cursor: default;
 }
 .insp-err-badge {
-  font-size: 11px;
+  font-size: var(--text-xs);
   background: rgba(239,68,68,0.15);
-  color: #ef4444;
+  color: var(--color-danger);
   border-radius: 10px;
   padding: 2px 7px;
-  font-weight: 700;
+  font-weight: var(--font-bold);
   flex-shrink: 0;
 }
 
 /* Description */
 .insp-desc {
-  font-size: 12px;
-  color: #475569;
-  padding: 8px 12px 4px;
-  line-height: 1.4;
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  line-height: var(--leading-tight);
   flex-shrink: 0;
 }
 
@@ -278,37 +278,37 @@ function updateField(name, value) {
 .insp-fields {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
 }
 
 /* Output */
 .insp-output {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-top: 1px solid #1e293b;
+  gap: var(--space-1-5);
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
   flex-shrink: 0;
 }
-.output-label { font-size: 11.5px; color: #475569; font-weight: 600; }
-.output-val   { font-size: 12px; color: #94a3b8; }
+.output-label { font-size: 11.5px; color: var(--color-text-faint); font-weight: var(--font-semibold); }
+.output-val   { font-size: var(--text-sm); color: var(--color-text-secondary); }
 .output-val code {
   font-family: monospace;
-  background: rgba(255,255,255,0.06);
-  padding: 1px 5px;
-  border-radius: 3px;
-  color: #c084fc;
-  font-size: 12px;
+  background: var(--color-white-6);
+  padding: 1px var(--pad-badge-x);
+  border-radius: var(--radius-sm);
+  color: var(--color-purple-light);
+  font-size: var(--text-sm);
 }
 
 /* Sprint 3 note */
 .insp-note {
   font-size: 11.5px;
-  color: #374151;
-  padding: 8px 12px;
-  border-top: 1px solid #1e293b;
-  line-height: 1.4;
+  color: var(--color-text-ghost);
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
+  line-height: var(--leading-tight);
   flex-shrink: 0;
 }
-.insp-note strong { color: #475569; }
+.insp-note strong { color: var(--color-text-faint); }
 </style>

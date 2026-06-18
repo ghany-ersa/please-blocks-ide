@@ -15,11 +15,11 @@ defineEmits(['select'])
 
 <style scoped>
 .opt-group-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #334155;
-  padding: 6px 10px 3px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  color: var(--color-text-dimmed);
+  padding: var(--space-1-5) var(--pad-item-x) var(--space-0-5);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--tracking-wider);
 }
 </style>

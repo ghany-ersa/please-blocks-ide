@@ -104,76 +104,75 @@ function onCanvasDragOver(e) {
 .canvas-toolbar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 14px;
-  background: #111827;
-  border-bottom: 1px solid #1e293b;
+  gap: var(--space-3);
+  padding: var(--space-2) 14px;
+  background: var(--color-bg-surface);
+  border-bottom: 1px solid var(--color-border-subtle);
   flex-shrink: 0;
 }
 .toolbar-btn {
-  padding: 5px 12px;
-  border-radius: 5px;
+  padding: var(--pad-btn-y) var(--pad-btn-x);
+  border-radius: var(--radius-md);
   border: none;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity var(--transition-base);
 }
 .toolbar-btn.primary {
-  background: #a855f7;
+  background: var(--color-purple);
   color: white;
 }
 .toolbar-btn.primary:hover { opacity: 0.85; }
 
 .toolbar-stats {
   display: flex;
-  gap: 6px;
-  font-size: 12px;
-  color: #475569;
+  gap: var(--space-1-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
 }
 
 .canvas-area {
   flex: 1;
   overflow: auto;
-  padding: 20px;
+  padding: var(--space-5);
   background: #0d1117;
-  background-image:
-    radial-gradient(circle, #1e293b 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--color-border-subtle) 1px, transparent 1px);
   background-size: 24px 24px;
   position: relative;
 }
 
 .features-row {
   display: flex;
-  gap: 16px;
+  gap: var(--space-4);
   align-items: flex-start;
   min-height: 100%;
 }
 
 .add-feature-col {
   flex-shrink: 0;
-  padding-top: 10px;
+  padding-top: var(--space-2-5);
 }
 .add-feature-btn {
   width: 120px;
   height: 80px;
-  background: rgba(168,85,247,0.04);
+  background: var(--color-purple-bg);
   border: 2px dashed rgba(168,85,247,0.15);
-  border-radius: 10px;
+  border-radius: var(--radius-xl);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  transition: border-color 0.15s, background 0.15s;
+  gap: var(--space-1);
+  transition: border-color var(--transition-base), background var(--transition-base);
 }
 .add-feature-btn:hover {
   border-color: rgba(168,85,247,0.4);
-  background: rgba(168,85,247,0.08);
+  background: var(--color-purple-bg-mid);
 }
-.af-icon  { font-size: 22px; color: #4c1d95; }
-.af-label { font-size: 12px; color: #6b21a8; font-weight: 600; }
+.af-icon  { font-size: var(--text-icon); color: #4c1d95; }
+.af-label { font-size: var(--text-sm); color: var(--color-purple-comp); font-weight: var(--font-semibold); }
 
 /* Empty state */
 .canvas-empty {
@@ -183,36 +182,36 @@ function onCanvasDragOver(e) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: var(--space-2-5);
   pointer-events: none;
 }
 .canvas-empty > * { pointer-events: all; }
-.empty-icon { font-size: 42px; margin-bottom: 4px; }
-.canvas-empty h3 { font-size: 18px; color: #374151; font-weight: 700; }
-.canvas-empty p  { font-size: 14px; color: #374151; text-align: center; line-height: 1.6; }
-.canvas-empty strong { color: #6b21a8; }
+.empty-icon { font-size: var(--text-hero); margin-bottom: var(--space-1); }
+.canvas-empty h3 { font-size: var(--text-2xl); color: var(--color-text-ghost); font-weight: var(--font-bold); }
+.canvas-empty p  { font-size: var(--text-md); color: var(--color-text-ghost); text-align: center; line-height: 1.6; }
+.canvas-empty strong { color: var(--color-purple-comp); }
 .empty-btn {
-  margin-top: 4px;
-  padding: 8px 20px;
-  background: #a855f7;
+  margin-top: var(--space-1);
+  padding: var(--space-2) var(--space-5);
+  background: var(--color-purple);
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity var(--transition-base);
 }
 .empty-btn:hover { opacity: 0.85; }
 .empty-btn-secondary {
-  padding: 6px 16px;
+  padding: var(--pad-btn-y) var(--space-4);
   background: none;
-  color: #475569;
-  border: 1px solid #1e293b;
-  border-radius: 6px;
-  font-size: 13px;
+  color: var(--color-text-faint);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color var(--transition-base), color var(--transition-base);
 }
-.empty-btn-secondary:hover { border-color: #334155; color: #94a3b8; }
+.empty-btn-secondary:hover { border-color: var(--color-border-default); color: var(--color-text-secondary); }
 </style>

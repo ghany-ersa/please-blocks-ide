@@ -37,14 +37,14 @@ function onDragEnd() {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: var(--space-1-5) var(--space-2-5);
+  border-radius: var(--radius-lg);
   background: var(--block-bg);
   border: 1px solid transparent;
   cursor: grab;
-  transition: border-color 0.15s, transform 0.1s;
+  transition: border-color var(--transition-base), transform var(--transition-fast);
   user-select: none;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 .block-card:hover {
   border-color: var(--block-color);
@@ -55,12 +55,12 @@ function onDragEnd() {
   transform: scale(0.97);
 }
 .icon {
-  font-size: 15px;
+  font-size: var(--text-lg);
   flex-shrink: 0;
 }
 .label {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
   color: var(--block-color);
   white-space: nowrap;
   overflow: hidden;

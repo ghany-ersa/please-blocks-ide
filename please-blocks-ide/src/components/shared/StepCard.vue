@@ -275,7 +275,7 @@ function onDrop(e) {
 
 <style scoped>
 .step-card {
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   background: var(--sc-bg);
   border: 1px solid transparent;
   margin-bottom: 3px;
@@ -286,31 +286,31 @@ function onDrop(e) {
 .step-card:hover          { border-color: var(--sc-color); }
 .step-card.active         { border-color: var(--sc-color); background: color-mix(in srgb, var(--sc-bg) 200%, transparent); }
 .step-card.selected       { outline: 2px solid rgba(168,85,247,0.6); outline-offset: 1px; }
-.step-card.has-error      { border-color: rgba(239,68,68,0.5) !important; background: rgba(239,68,68,0.05); }
+.step-card.has-error      { border-color: var(--color-danger-border) !important; background: var(--color-danger-bg); }
 .step-card.has-error.active { border-color: rgba(239,68,68,0.8) !important; }
 .step-card.expanded       { border-color: var(--sc-color); }
 .step-card:hover .sc-remove { opacity: 1; }
 
-.drop-before { box-shadow: 0 -2px 0 #a855f7; }
-.drop-after  { box-shadow: 0  2px 0 #a855f7; }
+.drop-before { box-shadow: 0 -2px 0 var(--color-purple); }
+.drop-after  { box-shadow: 0  2px 0 var(--color-purple); }
 
 /* ── Header ──────────────────────────────────────────────── */
 .sc-header {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 8px;
+  gap: var(--space-2-5);
+  padding: var(--pad-btn-y) var(--pad-input-x);
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: var(--radius-md);
 }
 .step-card.expanded .sc-header {
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  border-radius: 5px 5px 0 0;
+  border-bottom: 1px solid var(--color-white-6);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 .sc-num {
-  font-size: 11px;
-  color: #475569;
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
   font-family: monospace;
   min-width: 14px;
   text-align: right;
@@ -325,38 +325,38 @@ function onDrop(e) {
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity var(--transition-base);
   cursor: pointer;
 }
 .sc-checkbox-wrap.visible { opacity: 1; }
 .step-card:hover .sc-checkbox-wrap { opacity: 1; }
 .sc-checkbox {
-  font-size: 14px;
-  color: #475569;
-  line-height: 1;
+  font-size: var(--text-md);
+  color: var(--color-text-faint);
+  line-height: var(--leading-none);
   user-select: none;
-  transition: color 0.1s;
+  transition: color var(--transition-fast);
 }
-.sc-checkbox.checked { color: #a855f7; }
-.sc-checkbox-wrap:hover .sc-checkbox { color: #a855f7; }
+.sc-checkbox.checked { color: var(--color-purple); }
+.sc-checkbox-wrap:hover .sc-checkbox { color: var(--color-purple); }
 .sc-chevron {
-  font-size: 13px;
-  color: #475569;
+  font-size: var(--text-base);
+  color: var(--color-text-faint);
   flex-shrink: 0;
   width: 10px;
   text-align: center;
-  transition: color 0.1s;
+  transition: color var(--transition-fast);
 }
-.sc-icon  { font-size: 13px; flex-shrink: 0; }
+.sc-icon  { font-size: var(--text-base); flex-shrink: 0; }
 .sc-label {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
   color: var(--sc-color);
   flex-shrink: 0;
 }
 .sc-preview {
-  font-size: 11px;
-  color: #475569;
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
   font-family: monospace;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -365,13 +365,13 @@ function onDrop(e) {
   min-width: 0;
 }
 .sc-error-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 1px 5px;
+  font-size: var(--text-2xs);
+  font-weight: var(--font-bold);
+  padding: var(--pad-badge-y) var(--pad-badge-x);
   border-radius: 8px;
   background: rgba(239,68,68,0.15);
-  border: 1px solid rgba(239,68,68,0.3);
-  color: #ef4444;
+  border: 1px solid var(--color-danger-border);
+  color: var(--color-danger);
   flex-shrink: 0;
   cursor: help;
   white-space: nowrap;
@@ -379,79 +379,79 @@ function onDrop(e) {
 .sc-remove {
   background: none;
   border: none;
-  color: #475569;
+  color: var(--color-text-faint);
   cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
+  font-size: var(--text-xl);
+  line-height: var(--leading-none);
   padding: 0 2px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   opacity: 0;
-  transition: opacity 0.1s, color 0.1s;
+  transition: opacity var(--transition-fast), color var(--transition-fast);
   flex-shrink: 0;
   margin-left: auto;
 }
-.sc-remove:hover { color: #ef4444; opacity: 1; }
+.sc-remove:hover { color: var(--color-danger); opacity: 1; }
 
 /* ── Expanded fields ─────────────────────────────────────── */
 .sc-fields {
-  padding: 6px 10px 8px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 0 0 4px 4px;
+  padding: var(--space-1-5) var(--pad-item-x) var(--space-2);
+  background: var(--color-black-50);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
 }
 
 /* Note field di expanded form */
 .sc-note-field {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-white-5);
 }
 .sc-note-label {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--space-2-5);
   font-size: 11.5px;
-  font-weight: 600;
-  color: #64748b;
+  font-weight: var(--font-semibold);
+  color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
+  letter-spacing: var(--tracking-wide);
+  margin-bottom: var(--space-1);
 }
 .sc-note-opt {
-  font-size: 10px;
-  font-weight: 400;
-  color: #334155;
+  font-size: var(--text-2xs);
+  font-weight: var(--font-normal);
+  color: var(--color-text-dimmed);
   text-transform: none;
   letter-spacing: 0;
 }
 .sc-note-input {
   width: 100%;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid #1e293b;
-  border-radius: 4px;
-  padding: 5px 8px;
-  font-size: 12px;
-  color: #94a3b8;
+  background: var(--color-white-3);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--pad-input-y) var(--pad-input-x);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
   font-style: italic;
-  line-height: 1.5;
+  line-height: var(--leading-normal);
   resize: vertical;
   outline: none;
   box-sizing: border-box;
   font-family: inherit;
-  transition: border-color 0.15s;
+  transition: border-color var(--transition-base);
 }
-.sc-note-input:focus { border-color: #334155; color: #e2e8f0; }
-.sc-note-input::placeholder { color: #334155; font-style: italic; }
+.sc-note-input:focus { border-color: var(--color-text-dimmed); color: var(--color-text-primary); }
+.sc-note-input::placeholder { color: var(--color-text-dimmed); font-style: italic; }
 
 /* ── Unknown block ───────────────────────────────────────── */
 .step-unknown {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
-  background: rgba(239,68,68,0.08);
-  border-color: rgba(239,68,68,0.3);
-  color: #fca5a5;
-  font-size: 12px;
+  gap: var(--space-1-5);
+  padding: var(--pad-btn-y) var(--pad-input-x);
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
+  color: var(--color-danger-lighter);
+  font-size: var(--text-sm);
 }
 .sc-unknown-text { flex: 1; }
 </style>
