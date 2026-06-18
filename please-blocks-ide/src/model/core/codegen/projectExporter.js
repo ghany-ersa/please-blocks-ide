@@ -108,7 +108,7 @@ function slugify(str) {
 
 function generateAppFile(compNames, compExports) {
   const lines = [
-    `const pleaseClass = require('please-test')`,
+    `const Please = require('please-test')`,
   ]
 
   for (const name of compNames) {
@@ -117,8 +117,8 @@ function generateAppFile(compNames, compExports) {
 
   lines.push(
     ``,
-    `const please = new pleaseClass()         // headless (default)`,
-    `// const please = new pleaseClass({ headed: true })  // tampilkan browser`,
+    `const please = new Please()         // headless (default)`,
+    `// const please = new Please({ headed: true })  // tampilkan browser`,
     ``
   )
 
@@ -180,9 +180,8 @@ Project automation test yang di-generate oleh **Please Blocks IDE**.
 
 ## Prasyarat
 
-- Node.js v18 atau lebih baru
-- Google Chrome (atau browser lain yang sudah diinstall WebDriver-nya)
-- ChromeDriver yang sesuai dengan versi Chrome: https://chromedriver.chromium.org/downloads
+- Node.js >= 14.0.0
+- Google Chrome (ChromeDriver dikelola otomatis oleh `selenium-manager` bawaan Selenium 4)
 
 ## Cara Menjalankan
 
