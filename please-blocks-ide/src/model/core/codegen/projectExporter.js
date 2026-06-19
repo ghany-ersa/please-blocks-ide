@@ -158,7 +158,7 @@ function generatePackageJson(name = 'my-automation-tests') {
       report: 'playwright test --reporter=html && playwright show-report'
     },
     dependencies: {
-      'please-test': '^2.0.0'
+      'please-test': '^1.0.0'
     },
     devDependencies: {
       'dotenv':           '^16.0.0',

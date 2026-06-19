@@ -387,20 +387,41 @@ export const useCanvasStore = defineStore('canvas', {
 
     seedDemoData() {
       this.features = []
-      const f  = this.addFeature('Login — practicetestautomation.com')
-      const tc1 = this.addTestCase(f.id, 'login berhasil')
-      this.addStep(tc1.id, 'nav.goTo',      { urlTarget:  { type: 'dataref', path: 'URL.login' } })
-      this.addStep(tc1.id, 'action.fill',   { label: 'input username', selector: '#username', value: { type: 'dataref', path: 'ACCOUNT.valid.username' } })
-      this.addStep(tc1.id, 'action.fill',   { label: 'input password', selector: '#password', value: { type: 'dataref', path: 'ACCOUNT.valid.password' } })
-      this.addStep(tc1.id, 'action.click',  { label: 'button submit', selector: '#submit' })
-      this.addStep(tc1.id, 'nav.checkWhere',{ urlExpected: { type: 'dataref', path: 'URL.dashboard' } })
-      this.addStep(tc1.id, 'assert.see',{ label: 'teks sukses', selector: '//h1', expected: 'Logged In Successfully' })
+      const f = this.addFeature('Login - practicetestautomation.com')
+
+      const tc1 = this.addTestCase(f.id, 'menampilkan halaman login')
+      this.addStep(tc1.id, 'nav.goTo', { urlTarget: { type: 'dataref', path: 'PAGE.login' } })
+      this.addStep(tc1.id, 'assert.see', { label: 'judul halaman', selector: 'h2', expected: 'Login' })
 
       const tc2 = this.addTestCase(f.id, 'login gagal - username salah')
-      this.addStep(tc2.id, 'nav.goTo',      { urlTarget: { type: 'dataref', path: 'URL.login' } })
-      this.addStep(tc2.id, 'action.fill',   { label: 'input username', selector: '#username', value: 'invaliduser' })
-      this.addStep(tc2.id, 'assert.see',{ label: 'pesan error', selector: '//div[@id="error"]', expected: 'Your username is invalid!' })
-        this.persist()
+      this.addStep(tc2.id, 'nav.goTo',        { urlTarget: { type: 'dataref', path: 'PAGE.login' } })
+      this.addStep(tc2.id, 'action.fill',     { label: 'input username', selector: '#username', value: 'wronguser' })
+      this.addStep(tc2.id, 'action.fill',     { label: 'input password', selector: '#password', value: 'Password123' })
+      this.addStep(tc2.id, 'action.click',    { label: 'button submit',  selector: '#submit' })
+      this.addStep(tc2.id, 'assert.see',  { label: 'pesan error', selector: '#error', expected: 'Your username is invalid!' })
+
+      const tc3 = this.addTestCase(f.id, 'login gagal - password salah')
+      this.addStep(tc3.id, 'nav.goTo',        { urlTarget: { type: 'dataref', path: 'PAGE.login' } })
+      this.addStep(tc3.id, 'action.fill',     { label: 'input username', selector: '#username', value: 'student' })
+      this.addStep(tc3.id, 'action.fill',     { label: 'input password', selector: '#password', value: 'wrongpass' })
+      this.addStep(tc3.id, 'action.click',    { label: 'button submit',  selector: '#submit' })
+      this.addStep(tc3.id, 'assert.see',  { label: 'pesan error', selector: '#error', expected: 'Your password is invalid!' })
+
+      const tc4 = this.addTestCase(f.id, 'login gagal - form kosong')
+      this.addStep(tc4.id, 'nav.goTo',        { urlTarget: { type: 'dataref', path: 'PAGE.login' } })
+      this.addStep(tc4.id, 'action.click',    { label: 'button submit', selector: '#submit' })
+      this.addStep(tc4.id, 'assert.see',  { label: 'pesan error', selector: '#error', expected: 'Your username is invalid!' })
+
+      const tc5 = this.addTestCase(f.id, 'login berhasil')
+      this.addStep(tc5.id, 'nav.goTo',        { urlTarget: { type: 'dataref', path: 'PAGE.login' } })
+      this.addStep(tc5.id, 'action.fill',     { label: 'input username', selector: '#username', value: 'student' })
+      this.addStep(tc5.id, 'action.fill',     { label: 'input password', selector: '#password', value: 'Password123' })
+      this.addStep(tc5.id, 'action.click',    { label: 'button submit',  selector: '#submit' })
+      this.addStep(tc5.id, 'nav.checkWhere',  { urlExpected: { type: 'dataref', path: 'PAGE.dashboard' } })
+      this.addStep(tc5.id, 'assert.see',  { label: 'teks sukses', selector: 'h1', expected: 'Logged In Successfully' })
+      this.addStep(tc5.id, 'action.click',    { label: 'button logout', selector: 'text=Log out' })
+
+      this.persist()
     }
   }
 })

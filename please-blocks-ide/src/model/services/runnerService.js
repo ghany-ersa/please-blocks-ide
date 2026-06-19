@@ -141,7 +141,7 @@ export async function startRun({ projectPath, files, browser, onLog, onDone, onE
   es.addEventListener('start', (e) => {
     try {
       const d = JSON.parse(e.data)
-      onLog?.({ level: 'cmd', text: `$ npx mocha index.js  [${d.browser}]` })
+      onLog?.({ level: 'cmd', text: `$ npx playwright test  [${d.browser}]` })
     } catch { /* ignore */ }
   })
 

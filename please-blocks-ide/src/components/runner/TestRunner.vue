@@ -95,7 +95,7 @@ const levelColor = {
           class="btn-run"
           :disabled="canvas.features.length === 0"
           @click="run"
-          :title="runner.canRunReal ? 'Jalankan test sungguhan (mocha via server)' : 'Server tidak aktif — fallback simulasi'"
+          :title="runner.canRunReal ? 'Jalankan test sungguhan (playwright via server)' : 'Server tidak aktif — fallback simulasi'"
         >
           ▶ Run Real
         </button>

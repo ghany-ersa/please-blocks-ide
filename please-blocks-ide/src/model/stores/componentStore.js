@@ -14,32 +14,7 @@ import { useBlockRegistry } from '@/model/stores/blockRegistry.js'
 
 const STORAGE_KEY = 'please-blocks:componentStore'
 
-// Component default (Auth sesuai template please-test)
-const DEFAULT_COMPONENTS = [
-  {
-    id:         'comp-auth',
-    name:       'Auth',
-    exportName: 'AUTH',
-    methods: [
-      {
-        name:   'login',
-        params: ['user'],
-        steps: [
-          { blockId: 'action.fill',  inputs: { label: 'input username', selector: '#username', value: '' } },
-          { blockId: 'action.fill',  inputs: { label: 'input password', selector: '#password', value: '' } },
-          { blockId: 'action.click', inputs: { label: 'button submit',  selector: '#submit' } }
-        ]
-      },
-      {
-        name:   'logout',
-        params: [],
-        steps: [
-          { blockId: 'action.click', inputs: { label: 'button logout', selector: 'link=Log out' } }
-        ]
-      }
-    ]
-  }
-]
+const DEFAULT_COMPONENTS = []
 
 const uid  = () => `comp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
 const uidM = () => `meth-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`

@@ -98,7 +98,8 @@ function onCanvasDragOver(e) {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .canvas-toolbar {

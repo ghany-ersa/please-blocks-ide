@@ -147,7 +147,7 @@ export const useRunnerStore = defineStore('runner', {
       this.stats.total = allTcs.filter(tc => tc.enabled).length
 
       const browserLabel = { chromium: 'Chromium', firefox: 'Mozilla Firefox', webkit: 'WebKit' }[this.browserTarget] || this.browserTarget
-      this._addLog('cmd', `$ npx mocha index.js --reporter spec`)
+      this._addLog('cmd', `$ npx playwright test --reporter=list`)
       await this._delay(150)
       this._addLog('info', `Browser: ${browserLabel}`)
       await this._delay(100)

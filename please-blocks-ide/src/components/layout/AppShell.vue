@@ -14,7 +14,6 @@ import ProjectImportModal from '@/components/export/ProjectImportModal.vue'
 import ReportViewer      from '@/components/runner/ReportViewer.vue'
 import TopbarMenu        from '@/components/layout/TopbarMenu.vue'
 import ActivityBar       from '@/components/layout/ActivityBar.vue'
-import ProjectGate       from '@/components/layout/ProjectGate.vue'
 import DirectoryPicker   from '@/components/shared/DirectoryPicker.vue'
 import { useRunnerStore }     from '@/model/stores/runnerStore.js'
 import { useCanvasStore }    from '@/model/stores/canvasStore.js'
@@ -84,10 +83,7 @@ const runnerStatusColor = computed(() => {
 </script>
 
 <template>
-  <!-- Gate: pilih project dulu sebelum bisa akses canvas -->
-  <ProjectGate v-if="!runner.projectPath" />
-
-  <div v-else class="shell" :class="{ 'is-resizing': isResizing }">
+  <div class="shell" :class="{ 'is-resizing': isResizing }">
 
     <!-- Top bar -->
     <header class="topbar">
@@ -230,7 +226,7 @@ const runnerStatusColor = computed(() => {
     <footer class="statusbar">
       <span>please-test v1.0.0</span>
       <span>·</span>
-      <span>mocha + selenium-webdriver</span>
+      <span>playwright test</span>
       <span
         class="server-badge"
         :class="runner.serverAvailable ? 'online' : 'offline'"

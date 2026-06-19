@@ -10,22 +10,20 @@ import { existsSync }      from 'fs'
 const activeRuns = new Map()
 
 /**
- * Parse satu baris stdout mocha → { level, text }
+ * Parse satu baris stdout playwright → { level, text }
  * level: 'pass' | 'fail' | 'warn' | 'cmd' | 'info'
  */
 function parseLine(line) {
   const t = line.trimEnd()
   if (!t) return null
 
-  // Mocha spec reporter patterns
-  if (/passing/.test(t))                        return { level: 'pass', text: t }
-  if (/failing/.test(t))                        return { level: 'fail', text: t }
-  if (/pending/.test(t))                        return { level: 'warn', text: t }
-  if (/^\s+\d+\)/.test(t))                      return { level: 'fail', text: t }
-  if (/^\s+✓|^\s+passing/.test(t))              return { level: 'pass', text: t }
-  if (/^\s+\d+ (passing|failing)/.test(t))      return { level: t.includes('failing') ? 'fail' : 'pass', text: t }
-  if (/Error:|AssertionError|TypeError/.test(t)) return { level: 'fail', text: t }
-  if (/^\s*\$/.test(t))                         return { level: 'cmd',  text: t }
+  // Playwright reporter patterns
+  if (/✓|passed/.test(t))                        return { level: 'pass', text: t }
+  if (/✘|✗|failed|FAILED/.test(t))               return { level: 'fail', text: t }
+  if (/skipped|pending/.test(t))                  return { level: 'warn', text: t }
+  if (/Error:|AssertionError|TypeError/.test(t))  return { level: 'fail', text: t }
+  if (/^\s+\d+ (passed|failed)/.test(t))          return { level: t.includes('failed') ? 'fail' : 'pass', text: t }
+  if (/^\s*\$/.test(t))                           return { level: 'cmd',  text: t }
   return { level: 'info', text: t }
 }
 
@@ -128,7 +126,7 @@ export async function startRun(runId, projectPath, browser = 'chrome') {
     send('log', { level: 'info', text: '' })
   }
 
-  const proc = spawn('npx', ['mocha', '--timeout', '60000', 'index.js'], {
+  const proc = spawn('npx', ['playwright', 'test', '--reporter=list'], {
     cwd: projectPath,
     env,
     shell: true

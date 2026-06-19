@@ -65,13 +65,11 @@ export function useProjectWorkspace({ onKeepLocal } = {}) {
   // Saat reload dengan projectPath tersimpan, sinkronkan canvas dari folder.
   async function syncOnBoot() {
     await runner.checkServer()
-    if (!runner.projectPath) return        // belum ada project → gate menangani
-
-    // Server mati padahal ada projectPath → kembali ke gate (gate beri pesan).
-    if (!runner.serverAvailable) { closeProject(); return }
+    if (!runner.projectPath) return
+    if (!runner.serverAvailable) return    // server mati → tetap di canvas, skip sync
 
     const res = await readProject(runner.projectPath)
-    if (!res.ok) { closeProject(); return } // folder tak terbaca → kembali ke gate
+    if (!res.ok) return                    // folder tak terbaca → skip, tetap di canvas
 
     if (diskMatchesCanvas(res.data.files)) return  // localStorage == disk → diam
 

@@ -25,7 +25,7 @@ const DEFAULT_FILES = {
     label:    'Main Data',
     description: 'URL halaman dan data akun utama',
     groups: {
-      URL: {
+      PAGE: {
         login: {
           url:   'https://practicetestautomation.com/practice-test-login/',
           title: 'Test Login | Practice Test Automation'
