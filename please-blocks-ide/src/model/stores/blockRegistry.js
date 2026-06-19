@@ -30,8 +30,8 @@ export const useBlockRegistry = defineStore('blockRegistry', {
       for (const cat of CATEGORY_ORDER) {
         if (groups[cat]?.length) {
           ordered.push({
-            id:     cat,
-            meta:   CATEGORY_META[cat],
+            id: cat,
+            meta: CATEGORY_META[cat],
             blocks: groups[cat]
           })
         }
@@ -40,8 +40,8 @@ export const useBlockRegistry = defineStore('blockRegistry', {
       for (const [cat, blocks] of Object.entries(groups)) {
         if (!CATEGORY_ORDER.includes(cat) && blocks.length) {
           ordered.push({
-            id:     cat,
-            meta:   CATEGORY_META[cat] || { label: cat, icon: '📦', color: '#94a3b8' },
+            id: cat,
+            meta: CATEGORY_META[cat] || { label: cat, icon: '📦', color: '#94a3b8' },
             blocks
           })
         }
@@ -70,7 +70,7 @@ export const useBlockRegistry = defineStore('blockRegistry', {
     // Reset dynamic blocks (saat project ditutup)
     clearDynamicBlocks() {
       this.components = {}
-      this.data       = {}
+      this.data = {}
     }
   }
 })

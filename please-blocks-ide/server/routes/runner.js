@@ -18,7 +18,7 @@ export const runnerRouter = Router()
  * Body: { projectPath, files, browser }
  */
 runnerRouter.post('/start', (req, res) => {
-  const { projectPath, files, browser = 'chrome' } = req.body
+  const { projectPath, files, browser = 'chromium' } = req.body
 
   if (!projectPath) {
     return res.status(400).json({ error: 'projectPath diperlukan' })

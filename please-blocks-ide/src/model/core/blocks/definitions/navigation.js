@@ -1,5 +1,5 @@
 // Definisi blok kategori Navigation
-// Mapping ke: please.goTo(), please.checkWhere()
+// Mapping ke: please.goto(), please.verifyPage()
 
 import { resolveValue } from './helpers.js'
 
@@ -36,18 +36,18 @@ export default [
         name:        'urlTarget',
         type:        'dataref',
         label:       'URL target',
-        placeholder: 'URL.login',
+        placeholder: 'PAGE.login',
         required:    true,
-        schema:      URL_SCHEMA    // ← kontrak: harus object dengan url + title
+        schema:      URL_SCHEMA
       }
     ],
     output: null,
     codegen(inputs) {
-      return `await please.goTo(${resolveValue(inputs.urlTarget)})`
+      return `await please.goto(${resolveValue(inputs.urlTarget)})`
     },
     validate(inputs) {
       if (!inputs.urlTarget) return 'URL target wajib dipilih'
-      return null  // validasi skema dilakukan di BlockInspector
+      return null
     }
   },
 
@@ -64,14 +64,14 @@ export default [
         name:        'urlExpected',
         type:        'dataref',
         label:       'Halaman yang diharapkan',
-        placeholder: 'URL.dashboard',
+        placeholder: 'PAGE.dashboard',
         required:    true,
-        schema:      URL_SCHEMA    // ← sama — harus URL object
+        schema:      URL_SCHEMA
       }
     ],
     output: null,
     codegen(inputs) {
-      return `await please.checkWhere(${resolveValue(inputs.urlExpected)})`
+      return `await please.verifyPage(${resolveValue(inputs.urlExpected)})`
     },
     validate(inputs) {
       if (!inputs.urlExpected) return 'Halaman yang diharapkan wajib dipilih'

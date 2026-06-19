@@ -32,18 +32,26 @@ import { parse } from '@babel/parser'
 export function parseStatementToStep(stmt, ctx) {
   const note = ctx.commentsByLine?.get(stmt.loc?.start.line) || undefined
 
-  // const VAR = await please.getText/getValue(label, selector)
+  // Skip: const { please, AUTH } = createApp(page) — baris boilerplate IDE
+  if (isCreateAppDeclaration(stmt)) return null
+
+  // const VAR = await please.see(label, selector) / please.newTab()
   if (stmt.type === 'VariableDeclaration') {
     const decl = stmt.declarations[0]
     const varName = decl?.id?.name
     const callee = unwrapAwait(decl?.init)
     const pleaseMethod = matchPleaseCall(callee)
-    if (varName && pleaseMethod && (pleaseMethod.method === 'getText' || pleaseMethod.method === 'getValue')) {
-      const [label, selector] = pleaseMethod.args
-      return withNote(note, {
-        blockId: pleaseMethod.method === 'getText' ? 'assert.getText' : 'assert.getValue',
-        inputs: { label: litStr(label), selector: litStr(selector), varName }
-      })
+    if (varName && pleaseMethod) {
+      if (pleaseMethod.method === 'see') {
+        const [label, selector] = pleaseMethod.args
+        return withNote(note, {
+          blockId: 'assert.getText',
+          inputs: { label: litStr(label), selector: litStr(selector), varName }
+        })
+      }
+      if (pleaseMethod.method === 'newTab') {
+        return withNote(note, { blockId: 'util.newTab', inputs: { varName } })
+      }
     }
     return rawStep(stmt, ctx, note)
   }
@@ -51,15 +59,6 @@ export function parseStatementToStep(stmt, ctx) {
   if (stmt.type !== 'ExpressionStatement') return rawStep(stmt, ctx, note)
 
   const expr = unwrapAwait(stmt.expression)
-
-  // assert.seeText → please.equal(await please.see(label, selector), expected)
-  const seeText = matchSeeText(expr, ctx)
-  if (seeText) {
-    return withNote(note, {
-      blockId: 'assert.seeText',
-      inputs: { label: seeText.label, selector: seeText.selector, expected: seeText.expected }
-    })
-  }
 
   const pleaseCall = matchPleaseCall(expr)
   if (pleaseCall) {
@@ -96,9 +95,9 @@ export function parseBodyStatements(body, ctx) {
  */
 function mapPleaseMethod({ method, args }, ctx) {
   switch (method) {
-    case 'goTo':
+    case 'goto':
       return { blockId: 'nav.goTo', inputs: { urlTarget: valueFrom(args[0], ctx) } }
-    case 'checkWhere':
+    case 'verifyPage':
       return { blockId: 'nav.checkWhere', inputs: { urlExpected: valueFrom(args[0], ctx) } }
 
     case 'click':
@@ -122,17 +121,41 @@ function mapPleaseMethod({ method, args }, ctx) {
         inputs: { label: litStr(args[0]), selector: litStr(args[1]), path: valueFrom(args[2], ctx) }
       }
 
-    case 'equal':
-    case 'notEqual': {
-      const inputs = { actual: valueFrom(args[0], ctx), expected: valueFrom(args[1], ctx) }
-      if (args[2] !== undefined) inputs.message = litStr(args[2])
-      return { blockId: `assert.${method}`, inputs }
+    case 'see': {
+      // please.see(label, selector, expected?) → assert.seeText jika ada expected, else rawCode
+      if (args[2] !== undefined) {
+        return {
+          blockId: 'assert.seeText',
+          inputs: { label: litStr(args[0]), selector: litStr(args[1]), expected: valueFrom(args[2], ctx) }
+        }
+      }
+      // please.see() tanpa expected → getText (baca nilai, simpan ke var) — hanya dikenali via VariableDeclaration di atas
+      return null
     }
-    case 'fail':
-      return { blockId: 'assert.fail', inputs: args[0] !== undefined ? { message: litStr(args[0]) } : {} }
 
     case 'wait':
       return { blockId: 'util.wait', inputs: args[0] !== undefined ? { duration: numFrom(args[0]) } : {} }
+
+    case 'untilShow': {
+      const inputs = { label: litStr(args[0]), selector: litStr(args[1]) }
+      if (args[2] !== undefined) inputs.time = numFrom(args[2])
+      return { blockId: 'util.untilShow', inputs }
+    }
+
+    case 'screenshot':
+      return { blockId: 'util.screenshot', inputs: args[0] !== undefined ? { label: litStr(args[0]) } : {} }
+
+    case 'acceptDialog':
+      return { blockId: 'util.acceptDialog', inputs: args[0] !== undefined ? { text: litStr(args[0]) } : {} }
+
+    case 'dismissDialog':
+      return { blockId: 'util.dismissDialog', inputs: {} }
+
+    case 'switchTab':
+      return { blockId: 'util.switchTab', inputs: { tab: valueFrom(args[0], ctx) } }
+
+    case 'closeTab':
+      return { blockId: 'util.closeTab', inputs: { tab: valueFrom(args[0], ctx) } }
 
     default:
       return null  // tak dikenal → caller pakai rawStep
@@ -140,18 +163,6 @@ function mapPleaseMethod({ method, args }, ctx) {
 }
 
 // ── Pattern matchers ────────────────────────────────────────────────
-
-/** please.equal(await please.see(label, selector), expected) */
-function matchSeeText(expr, ctx) {
-  if (!isCall(expr) || !isPleaseMember(expr.callee, 'equal')) return null
-  const inner = unwrapAwait(expr.arguments[0])
-  if (!isCall(inner) || !isPleaseMember(inner.callee, 'see')) return null
-  return {
-    label: litStr(inner.arguments[0]),
-    selector: litStr(inner.arguments[1]),
-    expected: valueFrom(expr.arguments[1], ctx)
-  }
-}
 
 /** please.METHOD(...args) → { method, args } */
 function matchPleaseCall(expr) {
@@ -320,6 +331,17 @@ export function mapArgNInputs(step, blockRegistry) {
     if (inputs[`arg${i}`] !== undefined) mapped[def.name] = inputs[`arg${i}`]
   })
   return mapped
+}
+
+/** Deteksi baris boilerplate: const { please, ... } = createApp(page) */
+function isCreateAppDeclaration(stmt) {
+  if (stmt?.type !== 'VariableDeclaration') return false
+  const decl = stmt.declarations[0]
+  if (!decl) return false
+  const init = decl.init
+  // createApp(page)
+  if (init?.type === 'CallExpression' && init.callee?.name === 'createApp') return true
+  return false
 }
 
 /** Parse seluruh sumber JS → AST module (helper umum untuk parser file). */

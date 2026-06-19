@@ -6,10 +6,9 @@ const runner = useRunnerStore()
 const open   = ref(false)
 
 const BROWSERS = [
-  { id: 'chrome',  label: 'Chrome',  icon: '🟡', available: true  },
-  { id: 'firefox', label: 'Firefox', icon: '🟠', available: true  },
-  { id: 'edge',    label: 'Edge',    icon: '🔵', available: true  },
-  { id: 'safari',  label: 'Safari',  icon: '🩵', available: false },
+  { id: 'chromium', label: 'Chromium', icon: '🟡', available: true  },
+  { id: 'firefox',  label: 'Firefox',  icon: '🟠', available: true  },
+  { id: 'webkit',   label: 'WebKit',   icon: '🔵', available: true  },
 ]
 
 const current = () => BROWSERS.find(b => b.id === runner.browserTarget) || BROWSERS[0]

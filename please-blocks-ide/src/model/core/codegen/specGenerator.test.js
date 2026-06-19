@@ -33,12 +33,13 @@ describe('generateSpec — tanpa feature', () => {
 })
 
 describe('generateSpec — struktur dasar', () => {
-  it('menghasilkan require app dan describe', () => {
+  it('menghasilkan require app dan test.describe', () => {
     const feature = makeFeature()
     const code = generateSpec(feature, makeRegistry())
 
-    expect(code).toContain("const { please } = require('../app')")
-    expect(code).toContain("describe('Login', () => {")
+    expect(code).toContain("const { test, expect } = require('@playwright/test')")
+    expect(code).toContain("const { createApp }    = require('../app')")
+    expect(code).toContain("test.describe('Login', () => {")
     expect(code).toContain('})')
   })
 
@@ -65,9 +66,10 @@ describe('generateSpec — dengan test case dan steps', () => {
     ]
   })
 
-  it('menghasilkan it() block', () => {
+  it('menghasilkan test() block dengan page fixture', () => {
     const code = generateSpec(feature, registry)
-    expect(code).toContain("it('login berhasil', async () => {")
+    expect(code).toContain("test('login berhasil', async ({ page }) => {")
+    expect(code).toContain('createApp(page)')
   })
 
   it('menghasilkan kode step di dalam it()', () => {

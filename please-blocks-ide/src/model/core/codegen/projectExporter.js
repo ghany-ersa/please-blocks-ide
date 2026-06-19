@@ -83,6 +83,13 @@ export function exportProject(canvas, blockRegistry, dataRegistry, componentStor
     category: 'config'
   })
 
+  // ── playwright.config.js ─────────────────────────────────────
+  files.push({
+    path:     'playwright.config.js',
+    content:  generatePlaywrightConfig(),
+    category: 'config'
+  })
+
   // ── .gitignore ────────────────────────────────────────────────
   files.push({
     path:     '.gitignore',
@@ -115,26 +122,28 @@ function generateAppFile(compNames, compExports) {
     lines.push(`const ${name}Component = require('./components/${name.toLowerCase()}')`)
   }
 
-  lines.push(
-    ``,
-    `const please = new Please()         // headless (default)`,
-    `// const please = new Please({ headed: true })  // tampilkan browser`,
-    ``
-  )
+  lines.push(``)
+  lines.push(`/**`)
+  lines.push(` * @param {import('@playwright/test').Page} page`)
+  lines.push(` */`)
+  lines.push(`function createApp(page) {`)
+  lines.push(`    const please = new Please(page)`)
 
   if (compNames.length === 0) {
-    lines.push(`module.exports = {`)
-    lines.push(`    please`)
-    lines.push(`}`)
+    lines.push(`    return { please }`)
   } else {
-    lines.push(`module.exports = {`)
-    lines.push(`    please,`)
+    lines.push(`    return {`)
+    lines.push(`        please,`)
     for (let i = 0; i < compNames.length; i++) {
       const comma = i < compNames.length - 1 ? ',' : ''
-      lines.push(`    ${compExports[i]}: new ${compNames[i]}Component(please)${comma}`)
+      lines.push(`        ${compExports[i]}: new ${compNames[i]}Component(please)${comma}`)
     }
-    lines.push(`}`)
+    lines.push(`    }`)
   }
+
+  lines.push(`}`)
+  lines.push(``)
+  lines.push(`module.exports = { createApp }`)
 
   return lines.join('\n')
 }
@@ -143,28 +152,50 @@ function generatePackageJson(name = 'my-automation-tests') {
   return JSON.stringify({
     name,
     version: '1.0.0',
-    description: 'Automation test project using please.js',
+    description: 'Automation test project using please-test',
     scripts: {
-      test:   'mocha --recursive --timeout 100000 index.js',
-      report: 'mocha --recursive --timeout 100000 index.js --reporter mochawesome --reporter-options code=false,charts=true,assetsDir=report/assets,reportDir=report,reportFilename=index,reportPageTitle=Test Report'
+      test:   'playwright test',
+      report: 'playwright test --reporter=html && playwright show-report'
     },
     dependencies: {
-      'please-test':        '^1.1.0',
-      'selenium-webdriver': '^4.0.0'
+      'please-test': '^2.0.0'
     },
     devDependencies: {
-      'dotenv':       '^16.0.0',
-      'mocha':        '^11.0.0',
-      'mochawesome':  '^7.1.4'
+      'dotenv':           '^16.0.0',
+      '@playwright/test': '^1.40.0'
     }
   }, null, 4)
+}
+
+function generatePlaywrightConfig() {
+  return [
+    `require('dotenv').config()`,
+    ``,
+    `const { defineConfig, devices } = require('@playwright/test')`,
+    ``,
+    `module.exports = defineConfig({`,
+    `    testDir: './feature',`,
+    `    timeout: 60000,`,
+    `    reporter: 'html',`,
+    `    use: {`,
+    `        headless: true,`,
+    `        screenshot: 'only-on-failure',`,
+    `        video: 'retain-on-failure',`,
+    `        baseURL: process.env.BASE_URL,`,
+    `    },`,
+    `    projects: [`,
+    `        { name: 'chromium', use: { ...devices['Desktop Chrome'] } },`,
+    `    ],`,
+    `})`,
+  ].join('\n')
 }
 
 function generateGitignore() {
   return [
     'node_modules/',
     '.env',
-    'report/',
+    'test-results/',
+    'playwright-report/',
     '*.log',
   ].join('\n')
 }
@@ -181,7 +212,6 @@ Project automation test yang di-generate oleh **Please Blocks IDE**.
 ## Prasyarat
 
 - Node.js >= 14.0.0
-- Google Chrome (ChromeDriver dikelola otomatis oleh \`selenium-manager\` bawaan Selenium 4)
 
 ## Cara Menjalankan
 
@@ -189,12 +219,16 @@ Project automation test yang di-generate oleh **Please Blocks IDE**.
 
 \`\`\`bash
 npm install
+npx playwright install chromium
 \`\`\`
 
-### 2. Periksa file .env
+### 2. Buat file .env
 
-File \`.env\` sudah di-generate otomatis oleh Please Blocks IDE.
-Buka dan sesuaikan nilainya jika diperlukan (BASE_URL, credentials, dll).
+\`\`\`bash
+cp .env.example .env
+\`\`\`
+
+Buka \`.env\` dan isi nilai yang sesuai (BASE_URL, credentials, dll).
 
 ### 3. Jalankan test
 
@@ -208,18 +242,16 @@ npm test
 npm run report
 \`\`\`
 
-Laporan akan tersimpan di folder \`report/index.html\`.
-
 ## Struktur Project
 
 \`\`\`
 ${projectName}/
-├── app.js              # Setup driver + instance please
-├── index.js            # Toggle feature yang dijalankan
-├── .env                # Variabel environment (di-generate otomatis)
-├── components/         # Reusable action classes
-├── data/               # Test data dan URL
-└── feature/            # Test spec files
+├── app.js                # Factory createApp(page)
+├── playwright.config.js  # Konfigurasi Playwright
+├── .env                  # Variabel environment (tidak di-commit)
+├── components/           # Reusable action classes
+├── data/                 # Test data dan URL
+└── feature/              # Test spec files
 \`\`\`
 
 ## Features

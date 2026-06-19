@@ -1,22 +1,18 @@
 /**
  * specGenerator.js
- * Canvas state (Feature) → kode JS spec yang valid.
+ * Canvas state (Feature) → kode JS spec Playwright yang valid.
  *
- * Mendukung multi-file data: require() di-generate per file yang dipakai,
- * bukan hardcode ke '../data/main' saja.
+ * Contoh output:
  *
- * Contoh output dengan 2 data file:
+ *   const { test, expect } = require('@playwright/test')
+ *   const { createApp }    = require('../app')
+ *   const { URL, ACCOUNT } = require('../data/main')
  *
- *   const { please, AUTH }     = require('../app')
- *   const { URL, ACCOUNT }     = require('../data/main')
- *   const { PRODUCT, PAYMENT } = require('../data/checkout')
- *
- *   describe('Checkout Flow', () => {
- *     it('beli produk berhasil', async () => {
- *       await please.goTo(URL.shop)
- *       await please.see('produk', '.title', PRODUCT.laptop.name)
+ *   test.describe('Login Flow', () => {
+ *     test('login berhasil', async ({ page }) => {
+ *       const { please, AUTH } = createApp(page)
+ *       await please.goto(URL.login)
  *       await AUTH.login(ACCOUNT.valid)
- *       ...
  *     })
  *   })
  */
@@ -39,9 +35,9 @@ export function generateSpec(feature, blockRegistry, dataEntries = []) {
 
   const lines = []
 
-  // Import app (please + components)
-  const compList = ['please', ...components].join(', ')
-  lines.push(`const { ${compList} } = require('../app')`)
+  // Playwright imports
+  lines.push(`const { test, expect } = require('@playwright/test')`)
+  lines.push(`const { createApp }    = require('../app')`)
 
   // Import data — satu baris per file yang dipakai
   for (const { filePath, groups } of Object.values(importsMap)) {
@@ -49,11 +45,11 @@ export function generateSpec(feature, blockRegistry, dataEntries = []) {
     lines.push(`const { ${groups.join(', ')} } = require('${requirePath}')`)
   }
 
-  lines.push('', `describe('${feature.label}', () => {`)
+  lines.push('', `test.describe('${feature.label}', () => {`)
 
   // Test cases
   const testCaseBlocks = feature.testCases.map(tc =>
-    generateTestCase(tc, blockRegistry)
+    generateTestCase(tc, blockRegistry, components)
   )
 
   if (!testCaseBlocks.length) {
@@ -67,18 +63,23 @@ export function generateSpec(feature, blockRegistry, dataEntries = []) {
 }
 
 /**
- * Generate blok it() dari satu TestCase.
+ * Generate blok test() dari satu TestCase.
  */
-function generateTestCase(tc, blockRegistry) {
+function generateTestCase(tc, blockRegistry, components) {
   const stepLines = tc.steps.map(step => generateStep(step, blockRegistry))
   const indent = (block) => block.split('\n').map(l => `        ${l}`).join('\n')
+
+  // createApp destructure: { please, AUTH, ... }
+  const appVars = ['please', ...components].join(', ')
+  const createAppLine = `        const { ${appVars} } = createApp(page)`
+
   const body = stepLines.length
-    ? stepLines.map(indent).join('\n')
-    : '        // Belum ada step'
+    ? [createAppLine, ...stepLines.map(indent)].join('\n')
+    : `${createAppLine}\n        // Belum ada step`
 
   return [
     '',
-    `    it('${tc.label}', async () => {`,
+    `    test('${tc.label}', async ({ page }) => {`,
     body,
     `    })`
   ].join('\n')
@@ -86,7 +87,6 @@ function generateTestCase(tc, blockRegistry) {
 
 /**
  * Generate satu baris kode dari satu Step.
- * Jika step punya catatan (note) dari QA, prepend sebagai komentar di baris atas.
  */
 function generateStep(step, blockRegistry) {
   const block = blockRegistry.getById(step.blockId)
@@ -104,7 +104,6 @@ function generateStep(step, blockRegistry) {
 
 /**
  * Prepend catatan QA sebagai komentar di atas baris kode.
- * Note multi-baris → tiap baris jadi komentar tersendiri.
  */
 function withNote(note, code) {
   const text = note?.trim()

@@ -45,7 +45,8 @@ export function parseSpec(source, { blockRegistry = null, componentIndex = null 
 
   const features = []
   for (const node of ast.program.body) {
-    const describe = matchCallNamed(node, 'describe')
+    // Playwright: test.describe(...) atau mocha: describe(...)
+    const describe = matchCallNamed(node, 'describe') || matchMemberCall(node, 'test', 'describe')
     if (!describe) continue
     features.push(parseDescribe(describe, ctx))
   }
@@ -68,9 +69,10 @@ function parseDescribe(call, ctx) {
 
   const testCases = []
   for (const stmt of body) {
-    const it = matchCallNamed(stmt, 'it')
+    // Playwright: test(...) atau mocha: it(...)
+    const it = matchCallNamed(stmt, 'it') || matchCallNamed(stmt, 'test')
     if (!it) {
-      ctx.warnings.push(`Statement di dalam describe('${label}') diabaikan (bukan it()).`)
+      ctx.warnings.push(`Statement di dalam describe('${label}') diabaikan (bukan it()/test()).`)
       continue
     }
     testCases.push(parseIt(it, ctx))
@@ -95,6 +97,16 @@ function matchCallNamed(stmt, name) {
   if (stmt?.type !== 'ExpressionStatement') return null
   const call = stmt.expression
   if (call?.type === 'CallExpression' && call.callee?.name === name) return call
+  return null
+}
+
+/** ExpressionStatement berupa member call: obj.method(...) — mis. test.describe(...). */
+function matchMemberCall(stmt, obj, method) {
+  if (stmt?.type !== 'ExpressionStatement') return null
+  const call = stmt.expression
+  if (call?.type !== 'CallExpression') return null
+  const callee = call.callee
+  if (callee?.type === 'MemberExpression' && callee.object?.name === obj && callee.property?.name === method) return call
   return null
 }
 

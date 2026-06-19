@@ -45,18 +45,13 @@ describe('exportProject — app.js (tanpa component)', () => {
     expect(app.content).not.toContain('Builder')
   })
 
-  it('menggunakan new Please() tanpa argumen driver', () => {
-    expect(app.content).toContain('new Please()')
-    expect(app.content).not.toContain('new Please(driver)')
+  it('menggunakan pola createApp(page) factory', () => {
+    expect(app.content).toContain('function createApp(page)')
+    expect(app.content).toContain('new Please(page)')
   })
 
-  it('module.exports menyertakan please', () => {
-    expect(app.content).toContain('module.exports = {')
-    expect(app.content).toContain('please')
-  })
-
-  it('menyertakan komentar opsi headed', () => {
-    expect(app.content).toContain('headed: true')
+  it('module.exports menyertakan createApp', () => {
+    expect(app.content).toContain('module.exports = { createApp }')
   })
 })
 
@@ -106,19 +101,19 @@ describe('exportProject — package.json', () => {
     expect(() => { parsed = JSON.parse(pkg.content) }).not.toThrow()
   })
 
-  it('versi please-test adalah ^1.1.0', () => {
+  it('versi please-test adalah ^2.0.0', () => {
     parsed = JSON.parse(pkg.content)
-    expect(parsed.dependencies['please-test']).toBe('^1.1.0')
+    expect(parsed.dependencies['please-test']).toBe('^2.0.0')
   })
 
-  it('menyertakan selenium-webdriver sebagai dependency', () => {
+  it('menyertakan @playwright/test sebagai devDependency', () => {
     parsed = JSON.parse(pkg.content)
-    expect(parsed.dependencies['selenium-webdriver']).toBeDefined()
+    expect(parsed.devDependencies['@playwright/test']).toBeDefined()
   })
 
-  it('menyertakan mocha sebagai devDependency', () => {
+  it('script test menggunakan playwright test', () => {
     parsed = JSON.parse(pkg.content)
-    expect(parsed.devDependencies['mocha']).toBeDefined()
+    expect(parsed.scripts.test).toBe('playwright test')
   })
 
   it('menggunakan nama project yang diberikan', () => {

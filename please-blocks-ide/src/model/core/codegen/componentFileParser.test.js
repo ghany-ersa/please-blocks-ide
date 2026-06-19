@@ -88,7 +88,7 @@ describe('parseComponentFile — steps dalam method', () => {
       async login(email, password) {
         await please.fill('email', '#email', email)
         await please.click('btn', '#submit')
-        await please.checkWhere(URL.dashboard)
+        await please.verifyPage(PAGE.dashboard)
       }
     }
     module.exports = Auth
@@ -105,7 +105,7 @@ describe('parseComponentFile — steps dalam method', () => {
     expect(component.methods[0].steps[0].blockId).toBe('action.fill')
   })
 
-  it('step terakhir adalah nav.checkWhere', () => {
+  it('step terakhir adalah nav.checkWhere (verifyPage)', () => {
     const { component } = parseComponentFile(src)
     const steps = component.methods[0].steps
     expect(steps[steps.length - 1].blockId).toBe('nav.checkWhere')
@@ -120,7 +120,7 @@ describe('parseComponentFile — this.method() resolusi', () => {
       constructor(master) { this.please = master }
       async loginAndVerify(email, password) {
         await this.login(email, password)
-        await please.checkWhere(URL.dashboard)
+        await please.verifyPage(PAGE.dashboard)
       }
       async login(email, password) {
         await please.fill('email', '#email', email)

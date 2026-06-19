@@ -143,24 +143,24 @@ describe('parseStatementToStep — action blocks', () => {
 })
 
 describe('parseStatementToStep — navigation', () => {
-  it('memetakan please.goTo dengan dataref', () => {
-    const src = 'await please.goTo(URL.login)'
+  it('memetakan please.goto dengan dataref', () => {
+    const src = 'await please.goto(PAGE.login)'
     const step = parseStatementToStep(stmtOf(src), makeCtx({ source: src }))
     expect(step.blockId).toBe('nav.goTo')
-    expect(step.inputs.urlTarget).toEqual({ type: 'dataref', path: 'URL.login' })
+    expect(step.inputs.urlTarget).toEqual({ type: 'dataref', path: 'PAGE.login' })
   })
 
-  it('memetakan please.checkWhere', () => {
-    const src = 'await please.checkWhere(URL.dashboard)'
+  it('memetakan please.verifyPage', () => {
+    const src = 'await please.verifyPage(PAGE.dashboard)'
     const step = parseStatementToStep(stmtOf(src), makeCtx({ source: src }))
     expect(step.blockId).toBe('nav.checkWhere')
-    expect(step.inputs.urlExpected).toEqual({ type: 'dataref', path: 'URL.dashboard' })
+    expect(step.inputs.urlExpected).toEqual({ type: 'dataref', path: 'PAGE.dashboard' })
   })
 })
 
 describe('parseStatementToStep — assertions', () => {
-  it('memetakan please.equal(await please.see(...)) → assert.seeText', () => {
-    const src = "await please.equal(await please.see('teks', '#msg'), 'Berhasil')"
+  it('memetakan please.see(label, selector, expected) → assert.seeText', () => {
+    const src = "await please.see('teks', '#msg', 'Berhasil')"
     const step = parseStatementToStep(stmtOf(src), makeCtx({ source: src }))
     expect(step.blockId).toBe('assert.seeText')
     expect(step.inputs.label).toBe('teks')
@@ -168,54 +168,22 @@ describe('parseStatementToStep — assertions', () => {
     expect(step.inputs.expected).toBe('Berhasil')
   })
 
-  it('memetakan please.equal', () => {
-    const src = 'await please.equal(myVar, \'ok\')'
-    const step = parseStatementToStep(stmtOf(src), makeCtx({
-      source: src,
-      scopeVars: new Set(['myVar'])
-    }))
-    expect(step.blockId).toBe('assert.equal')
-    expect(step.inputs.actual).toEqual({ type: 'varref', varName: 'myVar' })
-  })
-
-  it('memetakan please.notEqual', () => {
-    const src = "await please.notEqual(val, 'error')"
-    const step = parseStatementToStep(stmtOf(src), makeCtx({
-      source: src,
-      scopeVars: new Set(['val'])
-    }))
-    expect(step.blockId).toBe('assert.notEqual')
-  })
-
-  it('memetakan please.fail dengan message', () => {
-    const src = "await please.fail('sengaja gagal')"
+  it('please.see tanpa expected jatuh ke rawCode (bukan seeText)', () => {
+    const src = "await please.see('teks', '#msg')"
     const step = parseStatementToStep(stmtOf(src), makeCtx({ source: src }))
-    expect(step.blockId).toBe('assert.fail')
-    expect(step.inputs.message).toBe('sengaja gagal')
-  })
-
-  it('memetakan please.fail tanpa argumen', () => {
-    const src = 'await please.fail()'
-    const step = parseStatementToStep(stmtOf(src), makeCtx({ source: src }))
-    expect(step.blockId).toBe('assert.fail')
+    // tanpa expected → null dari mapper → rawCode
+    expect(step.blockId).toBe('util.rawCode')
   })
 })
 
-describe('parseStatementToStep — getText/getValue (VariableDeclaration)', () => {
-  it('memetakan const x = await please.getText(...) → assert.getText', () => {
-    const src = "const pageTitle = await please.getText('judul', '//h1')"
+describe('parseStatementToStep — see sebagai VariableDeclaration (Read Text)', () => {
+  it('memetakan const x = await please.see(label, selector) → assert.getText', () => {
+    const src = "const pageTitle = await please.see('judul', 'h1')"
     const step = parseStatementToStep(stmtOf(src), makeCtx({ source: src }))
     expect(step.blockId).toBe('assert.getText')
     expect(step.inputs.varName).toBe('pageTitle')
     expect(step.inputs.label).toBe('judul')
-    expect(step.inputs.selector).toBe('//h1')
-  })
-
-  it('memetakan const x = await please.getValue(...) → assert.getValue', () => {
-    const src = "const nameVal = await please.getValue('input', '#name')"
-    const step = parseStatementToStep(stmtOf(src), makeCtx({ source: src }))
-    expect(step.blockId).toBe('assert.getValue')
-    expect(step.inputs.varName).toBe('nameVal')
+    expect(step.inputs.selector).toBe('h1')
   })
 })
 
@@ -256,7 +224,7 @@ describe('parseStatementToStep — rawCode fallback', () => {
 describe('parseBodyStatements', () => {
   it('parse beberapa statement sekaligus', () => {
     const src = `
-      await please.goTo(URL.login)
+      await please.goto(PAGE.login)
       await please.fill('email', '#email', 'x@y.com')
       await please.click('btn', '#btn')
     `
@@ -271,14 +239,25 @@ describe('parseBodyStatements', () => {
 
   it('scopeVars terakumulasi lintas statement', () => {
     const src = `
-      const headerText = await please.getText('header', '//h1')
-      await please.equal(headerText, 'Dashboard')
+      const headerText = await please.see('header', 'h1')
+      await please.see('header', 'h1', headerText)
     `
     const ast = parseModule(src)
     const steps = parseBodyStatements(ast.program.body, makeCtx({ source: src }))
     expect(steps[0].blockId).toBe('assert.getText')
-    expect(steps[1].blockId).toBe('assert.equal')
-    expect(steps[1].inputs.actual).toEqual({ type: 'varref', varName: 'headerText' })
+    expect(steps[0].inputs.varName).toBe('headerText')
+    expect(steps[1].blockId).toBe('assert.seeText')
+  })
+
+  it('baris createApp dilewati (tidak jadi step)', () => {
+    const src = `
+      const { please, AUTH } = createApp(page)
+      await please.click('btn', '#btn')
+    `
+    const ast = parseModule(src)
+    const steps = parseBodyStatements(ast.program.body, makeCtx({ source: src }))
+    expect(steps).toHaveLength(1)
+    expect(steps[0].blockId).toBe('action.click')
   })
 })
 

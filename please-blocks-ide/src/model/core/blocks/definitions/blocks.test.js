@@ -120,14 +120,14 @@ describe('action.scrollTo — codegen', () => {
 describe('nav.goTo — codegen', () => {
   const b = block(navigation, 'nav.goTo')
 
-  it('generates goTo with dataref', () => {
-    expect(b.codegen({ urlTarget: { type: 'dataref', path: 'URL.login' } }))
-      .toBe('await please.goTo(URL.login)')
+  it('generates goto with dataref', () => {
+    expect(b.codegen({ urlTarget: { type: 'dataref', path: 'PAGE.login' } }))
+      .toBe('await please.goto(PAGE.login)')
   })
 
-  it('generates goTo with inline object string (fallback plain)', () => {
-    expect(b.codegen({ urlTarget: 'URL.dashboard' }))
-      .toBe("await please.goTo('URL.dashboard')")
+  it('generates goto with inline object string (fallback plain)', () => {
+    expect(b.codegen({ urlTarget: 'PAGE.dashboard' }))
+      .toBe("await please.goto('PAGE.dashboard')")
   })
 })
 
@@ -187,9 +187,9 @@ describe('nav.goTo — URL_SCHEMA errorMessage', () => {
 describe('nav.checkWhere — codegen', () => {
   const b = block(navigation, 'nav.checkWhere')
 
-  it('generates checkWhere with dataref', () => {
-    expect(b.codegen({ urlExpected: { type: 'dataref', path: 'URL.dashboard' } }))
-      .toBe('await please.checkWhere(URL.dashboard)')
+  it('generates verifyPage with dataref', () => {
+    expect(b.codegen({ urlExpected: { type: 'dataref', path: 'PAGE.dashboard' } }))
+      .toBe('await please.verifyPage(PAGE.dashboard)')
   })
 })
 
@@ -198,9 +198,9 @@ describe('nav.checkWhere — codegen', () => {
 describe('assert.seeText — codegen', () => {
   const b = block(assertions, 'assert.seeText')
 
-  it('generates see + equal combo', () => {
+  it('generates see dengan expected langsung', () => {
     expect(b.codegen({ label: 'pesan', selector: '#msg', expected: 'Berhasil!' }))
-      .toBe("await please.equal(await please.see('pesan', '#msg'), 'Berhasil!')")
+      .toBe("await please.see('pesan', '#msg', 'Berhasil!')")
   })
 
   it('resolves dataref expected', () => {
@@ -208,62 +208,53 @@ describe('assert.seeText — codegen', () => {
       label: 'pesan',
       selector: '#msg',
       expected: { type: 'dataref', path: 'DATA.expected.msg' }
-    })).toBe("await please.equal(await please.see('pesan', '#msg'), DATA.expected.msg)")
+    })).toBe("await please.see('pesan', '#msg', DATA.expected.msg)")
   })
 })
 
 describe('assert.getText — codegen', () => {
   const b = block(assertions, 'assert.getText')
 
-  it('generates getText assignment', () => {
-    expect(b.codegen({ label: 'judul', selector: '//h1', varName: 'pageTitle' }))
-      .toBe("const pageTitle = await please.getText('judul', '//h1')")
-  })
-})
-
-describe('assert.getValue — codegen', () => {
-  const b = block(assertions, 'assert.getValue')
-
-  it('generates getValue assignment', () => {
-    expect(b.codegen({ label: 'input', selector: '#name', varName: 'nameVal' }))
-      .toBe("const nameVal = await please.getValue('input', '#name')")
+  it('generates see assignment (read text)', () => {
+    expect(b.codegen({ label: 'judul', selector: 'h1', varName: 'pageTitle' }))
+      .toBe("const pageTitle = await please.see('judul', 'h1')")
   })
 })
 
 describe('assert.equal — codegen', () => {
   const b = block(assertions, 'assert.equal')
 
-  it('generates equal without message', () => {
-    expect(b.codegen({ actual: { varName: 'pageTitle' }, expected: 'Dashboard' }))
-      .toBe("await please.equal(pageTitle, 'Dashboard')")
+  it('generates expect().toBe() without message', () => {
+    expect(b.codegen({ actual: { type: 'varref', varName: 'pageTitle' }, expected: 'Dashboard' }))
+      .toBe("expect(pageTitle).toBe('Dashboard')")
   })
 
-  it('generates equal with message', () => {
-    expect(b.codegen({ actual: { varName: 'pageTitle' }, expected: 'Dashboard', message: 'judul salah' }))
-      .toBe("await please.equal(pageTitle, 'Dashboard', 'judul salah')")
+  it('generates expect().toBe() with message', () => {
+    expect(b.codegen({ actual: { type: 'varref', varName: 'pageTitle' }, expected: 'Dashboard', message: 'judul salah' }))
+      .toBe("expect(pageTitle, 'judul salah').toBe('Dashboard')")
   })
 })
 
 describe('assert.notEqual — codegen', () => {
   const b = block(assertions, 'assert.notEqual')
 
-  it('generates notEqual', () => {
-    expect(b.codegen({ actual: { varName: 'status' }, expected: 'error' }))
-      .toBe("await please.notEqual(status, 'error')")
+  it('generates expect().not.toBe()', () => {
+    expect(b.codegen({ actual: { type: 'varref', varName: 'status' }, expected: 'error' }))
+      .toBe("expect(status).not.toBe('error')")
   })
 })
 
 describe('assert.fail — codegen', () => {
   const b = block(assertions, 'assert.fail')
 
-  it('generates fail with message', () => {
+  it('generates throw new Error with message', () => {
     expect(b.codegen({ message: 'sengaja gagal' }))
-      .toBe("await please.fail('sengaja gagal')")
+      .toBe("throw new Error('sengaja gagal')")
   })
 
-  it('generates fail without message', () => {
+  it('generates throw new Error without message', () => {
     expect(b.codegen({}))
-      .toBe('await please.fail()')
+      .toBe("throw new Error('Test digagalkan secara eksplisit')")
   })
 })
 
@@ -306,5 +297,102 @@ describe('util.rawCode — validate', () => {
 
   it('returns null when code is filled', () => {
     expect(b.validate({ code: 'await please.wait()' })).toBeNull()
+  })
+})
+
+// ── Utility blocks baru (Playwright) ─────────────────────────────
+
+describe('util.untilShow — codegen', () => {
+  const b = block(utilities, 'util.untilShow')
+
+  it('generates untilShow tanpa timeout', () => {
+    expect(b.codegen({ label: 'spinner', selector: '.spinner' }))
+      .toBe("await please.untilShow('spinner', '.spinner')")
+  })
+
+  it('generates untilShow dengan custom timeout', () => {
+    expect(b.codegen({ label: 'spinner', selector: '.spinner', time: 5000 }))
+      .toBe("await please.untilShow('spinner', '.spinner', 5000)")
+  })
+
+  it('returns error when selector kosong', () => {
+    expect(b.validate({ label: 'x', selector: '' })).toBeTruthy()
+  })
+
+  it('returns null when valid', () => {
+    expect(b.validate({ label: 'x', selector: '.x' })).toBeNull()
+  })
+})
+
+describe('util.screenshot — codegen', () => {
+  const b = block(utilities, 'util.screenshot')
+
+  it('generates screenshot dengan label', () => {
+    expect(b.codegen({ label: 'halaman login' }))
+      .toBe("await please.screenshot('halaman login')")
+  })
+
+  it('generates screenshot tanpa label', () => {
+    expect(b.codegen({})).toBe('await please.screenshot()')
+  })
+})
+
+describe('util.newTab — codegen', () => {
+  const b = block(utilities, 'util.newTab')
+
+  it('generates newTab assignment ke variabel', () => {
+    expect(b.codegen({ varName: 'tab2' }))
+      .toBe('const tab2 = await please.newTab()')
+  })
+
+  it('returns error when varName kosong', () => {
+    expect(b.validate({ varName: '' })).toBeTruthy()
+  })
+
+  it('returns null when varName diisi', () => {
+    expect(b.validate({ varName: 'tab2' })).toBeNull()
+  })
+})
+
+describe('util.switchTab — codegen', () => {
+  const b = block(utilities, 'util.switchTab')
+
+  it('generates switchTab dari varref', () => {
+    expect(b.codegen({ tab: { type: 'varref', varName: 'tab2' } }))
+      .toBe('await please.switchTab(tab2)')
+  })
+
+  it('returns error when tab kosong', () => {
+    expect(b.validate({ tab: '' })).toBeTruthy()
+  })
+})
+
+describe('util.closeTab — codegen', () => {
+  const b = block(utilities, 'util.closeTab')
+
+  it('generates closeTab dari varref', () => {
+    expect(b.codegen({ tab: { type: 'varref', varName: 'tab2' } }))
+      .toBe('await please.closeTab(tab2)')
+  })
+})
+
+describe('util.acceptDialog — codegen', () => {
+  const b = block(utilities, 'util.acceptDialog')
+
+  it('generates acceptDialog tanpa teks', () => {
+    expect(b.codegen({})).toBe('await please.acceptDialog()')
+  })
+
+  it('generates acceptDialog dengan teks prompt', () => {
+    expect(b.codegen({ text: 'konfirmasi' }))
+      .toBe("await please.acceptDialog('konfirmasi')")
+  })
+})
+
+describe('util.dismissDialog — codegen', () => {
+  const b = block(utilities, 'util.dismissDialog')
+
+  it('generates dismissDialog', () => {
+    expect(b.codegen({})).toBe('await please.dismissDialog()')
   })
 })

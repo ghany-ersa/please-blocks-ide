@@ -104,18 +104,19 @@ describe('parseSpec — multiple describe()', () => {
 // ── Step mapping ──────────────────────────────────────────────────
 
 describe('parseSpec — step mapping', () => {
-  it('memetakan navigation goTo', () => {
-    const src = `describe('F', () => { it('t', async () => { await please.goTo(URL.login) }) })`
+  it('memetakan navigation goto (Playwright)', () => {
+    const src = `test.describe('F', () => { test('t', async ({ page }) => { const { please } = createApp(page); await please.goto(PAGE.login) }) })`
     const { features } = parse(src)
     const step = features[0].testCases[0].steps[0]
     expect(step.blockId).toBe('nav.goTo')
-    expect(step.inputs.urlTarget).toEqual({ type: 'dataref', path: 'URL.login' })
+    expect(step.inputs.urlTarget).toEqual({ type: 'dataref', path: 'PAGE.login' })
   })
 
-  it('memetakan seeText (equal + see)', () => {
-    const src = `describe('F', () => {
-      it('t', async () => {
-        await please.equal(await please.see('pesan', '#msg'), 'Berhasil')
+  it('memetakan seeText: please.see(label, sel, expected)', () => {
+    const src = `test.describe('F', () => {
+      test('t', async ({ page }) => {
+        const { please } = createApp(page)
+        await please.see('pesan', '#msg', 'Berhasil')
       })
     })`
     const { features } = parse(src)
@@ -124,18 +125,18 @@ describe('parseSpec — step mapping', () => {
     expect(step.inputs.expected).toBe('Berhasil')
   })
 
-  it('memetakan getText → varref di equal', () => {
-    const src = `describe('F', () => {
-      it('t', async () => {
-        const pageTitle = await please.getText('judul', '//h1')
-        await please.equal(pageTitle, 'Dashboard')
+  it('memetakan see tanpa expected → getText', () => {
+    const src = `test.describe('F', () => {
+      test('t', async ({ page }) => {
+        const { please } = createApp(page)
+        const pageTitle = await please.see('judul', 'h1')
+        await please.see('judul', 'h1', pageTitle)
       })
     })`
     const { features } = parse(src)
     const steps = features[0].testCases[0].steps
     expect(steps[0].blockId).toBe('assert.getText')
-    expect(steps[1].blockId).toBe('assert.equal')
-    expect(steps[1].inputs.actual).toEqual({ type: 'varref', varName: 'pageTitle' })
+    expect(steps[1].blockId).toBe('assert.seeText')
   })
 })
 

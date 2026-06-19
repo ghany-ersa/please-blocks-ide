@@ -18,10 +18,10 @@ function loadSettings() {
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')
     return {
       projectPath:   typeof saved.projectPath === 'string' ? saved.projectPath : '',
-      browserTarget: saved.browserTarget || 'chrome'
+      browserTarget: saved.browserTarget || 'chromium'
     }
   } catch {
-    return { projectPath: '', browserTarget: 'chrome' }
+    return { projectPath: '', browserTarget: 'chromium' }
   }
 }
 
@@ -55,7 +55,7 @@ export const useRunnerStore = defineStore('runner', {
     // Apakah modal Report Viewer sedang tampil
     showReport: false,
 
-    // Browser target: 'chrome' | 'firefox' | 'edge' | 'safari' (persist)
+    // Browser target: 'chromium' | 'firefox' | 'webkit' (persist)
     browserTarget: loadSettings().browserTarget,
 
     // true = server Express tersedia, false = fallback ke simulasi
@@ -146,7 +146,7 @@ export const useRunnerStore = defineStore('runner', {
 
       this.stats.total = allTcs.filter(tc => tc.enabled).length
 
-      const browserLabel = { chrome: 'Google Chrome', firefox: 'Mozilla Firefox', edge: 'Microsoft Edge', safari: 'Safari' }[this.browserTarget] || this.browserTarget
+      const browserLabel = { chromium: 'Chromium', firefox: 'Mozilla Firefox', webkit: 'WebKit' }[this.browserTarget] || this.browserTarget
       this._addLog('cmd', `$ npx mocha index.js --reporter spec`)
       await this._delay(150)
       this._addLog('info', `Browser: ${browserLabel}`)

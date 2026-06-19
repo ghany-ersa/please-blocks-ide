@@ -105,7 +105,7 @@ export async function writeProject(projectPath, files) {
  * @param {Object}   opts
  * @param {string}   opts.projectPath  - absolute path folder project
  * @param {Array}    opts.files        - [{ path, content }] dari exportProject()
- * @param {string}   opts.browser      - 'chrome' | 'firefox' | 'edge'
+ * @param {string}   opts.browser      - 'chromium' | 'firefox' | 'webkit'
  * @param {Function} opts.onLog        - callback({ level, text })
  * @param {Function} opts.onDone       - callback({ exitCode })
  * @param {Function} opts.onError      - callback(errorMessage)
