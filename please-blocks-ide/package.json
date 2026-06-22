@@ -3,15 +3,48 @@
   "version": "0.1.0",
   "description": "Visual block-based IDE untuk QA Automation berbasis please-test",
   "type": "module",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently \"node --watch --watch-path=server server/index.js\" \"vite\" --names \"server,vite\" --prefix-colors \"cyan,green\"",
     "server": "node --watch --watch-path=server server/index.js",
     "vite": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "electron": "vite build && electron .",
+    "electron:dev": "ELECTRON_DEV=1 electron .",
+    "dist:mac": "vite build && electron-builder --mac",
+    "dist:win": "vite build && electron-builder --win",
+    "dist:linux": "vite build && electron-builder --linux",
+    "dist": "vite build && electron-builder --mac --win --linux",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
+  },
+  "build": {
+    "appId": "com.pleaseblocks.ide",
+    "productName": "Please Blocks",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "server/**",
+      "package.json"
+    ],
+    "mac": {
+      "icon": "electron/icons/icon.icns",
+      "target": "dmg",
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "icon": "electron/icons/icon.ico",
+      "target": "nsis"
+    },
+    "linux": {
+      "icon": "electron/icons/icon.png",
+      "target": "AppImage"
+    }
   },
   "dependencies": {
     "chokidar": "^5.0.0",
@@ -26,6 +59,9 @@
     "@vitest/coverage-v8": "^4.1.9",
     "concurrently": "^10.0.3",
     "create-please-test": "^2.0.3",
+    "electron": "^42.4.1",
+    "electron-builder": "^26.15.3",
+    "sharp": "^0.35.2",
     "vite": "^5.0.0",
     "vitest": "^4.1.9"
   }

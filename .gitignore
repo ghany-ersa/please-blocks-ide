@@ -24,3 +24,7 @@ please-blocks-ide/.env.*.local
 
 # Vite cache
 please-blocks-ide/.vite/
+
+
+# release
+please-blocks-ide/release/

@@ -5,6 +5,30 @@
 import { spawn }           from 'child_process'
 import { resolve, join }   from 'path'
 import { existsSync }      from 'fs'
+import { execSync }        from 'child_process'
+
+// Cari path absolut npm dengan memeriksa file langsung (tidak pakai shell)
+function findBin(name) {
+  const candidates = [
+    `/usr/local/bin/${name}`,
+    `/opt/homebrew/bin/${name}`,
+    `/usr/bin/${name}`,
+    `/home/linuxbrew/.linuxbrew/bin/${name}`,
+  ]
+  // Cek juga dari PATH environment yang diteruskan dari Electron main
+  const pathDirs = (process.env.PATH || '').split(':')
+  for (const dir of pathDirs) {
+    candidates.unshift(`${dir}/${name}`)
+  }
+  for (const p of candidates) {
+    if (existsSync(p)) return p
+  }
+  return name  // last resort — biarkan OS cari sendiri
+}
+
+const NPM = findBin('npm')
+const NPX = findBin('npx')
+console.log(`[testRunner] npm: ${NPM}, npx: ${NPX}`)
 
 // Map: runId → { process, clients: Set<res> }
 const activeRuns = new Map()
@@ -68,8 +92,8 @@ function parseLine(line) {
  */
 function runNpmInstall(projectPath, send) {
   return new Promise((resolve) => {
-    send('log', { level: 'cmd', text: '$ npm install' })
-    const proc = spawn('npm', ['install'], { cwd: projectPath, shell: true })
+    send('log', { level: 'cmd', text: `$ ${NPM} install` })
+    const proc = spawn(NPM, ['install'], { cwd: projectPath, shell: false, env: process.env })
     proc.stdout.on('data', (chunk) => {
       for (const line of chunk.toString().split('\n')) {
         const t = line.trimEnd()
@@ -154,10 +178,10 @@ export async function startRun(runId, projectPath, browser = 'chrome') {
     send('log', { level: 'info', text: '' })
   }
 
-  const proc = spawn('npx', ['playwright', 'test', '--reporter=list'], {
+  const proc = spawn(NPX, ['playwright', 'test', '--reporter=list'], {
     cwd: projectPath,
     env,
-    shell: true
+    shell: false
   })
 
   proc.stdout.setEncoding('utf-8')

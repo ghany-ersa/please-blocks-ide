@@ -69,7 +69,11 @@ export function useProjectWorkspace({ onKeepLocal } = {}) {
     if (!runner.serverAvailable) return    // server mati → tetap di canvas, skip sync
 
     const res = await readProject(runner.projectPath)
-    if (!res.ok) return                    // folder tak terbaca → skip, tetap di canvas
+    if (!res.ok) {
+      // Folder tidak terbaca (dipindah/dihapus) → kembali ke gate
+      runner.setProjectPath('')
+      return
+    }
 
     if (diskMatchesCanvas(res.data.files)) return  // localStorage == disk → diam
 
