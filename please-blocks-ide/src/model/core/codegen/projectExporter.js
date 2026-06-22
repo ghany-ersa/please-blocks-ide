@@ -24,7 +24,7 @@ import tplPackageJson      from 'create-please-test/template/package.json?raw'
  * @param {Object} componentStore - componentStore
  * @returns {Array<{ path, content, category }>}
  */
-export function exportProject(canvas, blockRegistry, dataRegistry, componentStore, projectName = 'my-automation-tests') {
+export function exportProject(canvas, blockRegistry, dataRegistry, componentStore, projectName = '') {
   const files = []
 
   // ── Feature specs ──────────────────────────────────────────────

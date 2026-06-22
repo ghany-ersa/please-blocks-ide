@@ -78,11 +78,10 @@ export const useRunnerStore = defineStore('runner', {
     passCount:   (s) => s.stats.passed,
     canRunReal:  (s) => s.serverAvailable && !!s.projectPath,
 
-    // Nama project = basename folder yang dipilih (fallback default)
+    // Nama project = basename folder yang dipilih
     projectName: (s) => {
-      if (!s.projectPath) return 'my-automation-tests'
-      const base = s.projectPath.replace(/[/\\]+$/, '').split(/[/\\]/).pop()
-      return base || 'my-automation-tests'
+      if (!s.projectPath) return ''
+      return s.projectPath.replace(/[/\\]+$/, '').split(/[/\\]/).pop() || ''
     }
   },
 
