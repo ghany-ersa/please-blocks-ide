@@ -17,13 +17,41 @@ function parseLine(line) {
   const t = line.trimEnd()
   if (!t) return null
 
-  // Playwright reporter patterns
-  if (/✓|passed/.test(t))                        return { level: 'pass', text: t }
-  if (/✘|✗|failed|FAILED/.test(t))               return { level: 'fail', text: t }
-  if (/skipped|pending/.test(t))                  return { level: 'warn', text: t }
-  if (/Error:|AssertionError|TypeError/.test(t))  return { level: 'fail', text: t }
-  if (/^\s+\d+ (passed|failed)/.test(t))          return { level: t.includes('failed') ? 'fail' : 'pass', text: t }
-  if (/^\s*\$/.test(t))                           return { level: 'cmd',  text: t }
+  // Realtime pass/fail tick
+  if (/[✓✔]/.test(t)) return { level: 'pass', text: t }
+  if (/[✘✗]/.test(t)) return { level: 'fail', text: t }
+
+  // Summary stats footer
+  if (/^\s+\d+\s+passed/.test(t)) return { level: 'pass', text: t }
+  if (/^\s+\d+\s+failed/.test(t)) return { level: 'fail', text: t }
+  if (/skipped/.test(t))          return { level: 'warn', text: t }
+
+  // Summary header "  N) path › Feature › TC ────"
+  if (/^\s+\d+\)\s+/.test(t)) return { level: 'fail', text: t }
+
+  // Expected / Received — level khusus agar bisa diberi warna di UI
+  if (/^\s+Expected\s*[:：]/.test(t)) return { level: 'expected', text: t }
+  if (/^\s+Received\s*[:：]/.test(t)) return { level: 'received', text: t }
+
+  // Pesan error (tanpa stack trace)
+  if (/Error:/.test(t) && !/^\s+at /.test(t)) return { level: 'fail', text: t }
+
+  // Path screenshot / video artifact
+  if (/^\s+test-results\/.+\.(png|webm)/.test(t)) return { level: 'info', text: t }
+
+  // npm command
+  if (/^\s*\$/.test(t)) return { level: 'cmd', text: t }
+
+  // Filter: stack trace, source context, separator, attachment header
+  if (/^\s+at /.test(t))              return null
+  if (/^\s*\d+\s*[|›]/.test(t))      return null
+  if (/^\s*>?\s*\d+\s*\|/.test(t))   return null
+  if (/^\s*\^+/.test(t))             return null
+  if (/^\s*[─\-]{4,}/.test(t))       return null
+  if (/attachment\s*#\d+:/i.test(t)) return null
+  if (/Error Context:/i.test(t))     return null
+  if (/^\s*\.\.\.$/.test(t))         return null
+
   return { level: 'info', text: t }
 }
 

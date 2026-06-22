@@ -58,11 +58,13 @@ function clear() {
 
 // Warna per level log
 const levelColor = {
-  info: '#64748b',
-  pass: '#10b981',
-  fail: '#ef4444',
-  warn: '#f59e0b',
-  cmd:  '#818cf8'
+  info:     '#64748b',
+  pass:     '#10b981',
+  fail:     '#ef4444',
+  warn:     '#f59e0b',
+  cmd:      '#818cf8',
+  expected: '#10b981',
+  received: '#f59e0b'
 }
 </script>
 
@@ -329,11 +331,13 @@ const levelColor = {
 .log-time { color: var(--color-border-subtle); flex-shrink: 0; font-size: var(--text-xs); }
 .log-text  { flex: 1; }
 
-.log-pass { color: var(--color-success); }
-.log-fail { color: var(--color-danger); }
-.log-warn { color: var(--color-warning); }
-.log-cmd  { color: var(--color-primary-light); }
-.log-info { color: var(--color-text-faint); }
+.log-pass     { color: var(--color-success); }
+.log-fail     { color: var(--color-danger); }
+.log-warn     { color: var(--color-warning); }
+.log-cmd      { color: var(--color-primary-light); }
+.log-info     { color: var(--color-text-faint); }
+.log-expected { color: var(--color-success); }
+.log-received { color: var(--color-warning); }
 
 .log-cursor {
   color: var(--color-success);
