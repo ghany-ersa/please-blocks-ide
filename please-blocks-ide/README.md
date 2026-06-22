@@ -6,6 +6,30 @@ Please Blocks adalah drag-and-drop IDE di mana setiap langkah test direpresentas
 
 ---
 
+## Screenshots
+
+**Project Gate** — pilih atau buat project baru saat pertama kali dibuka.
+
+![Project Gate](docs/screenshots/01-project-gate.png)
+
+**Canvas** — susun blok test secara visual, code preview ter-generate otomatis di kanan.
+
+![Canvas](docs/screenshots/02-canvas-cropped.png)
+
+**Data Manager** — kelola URL, akun, dan data test terpusat.
+
+![Data Manager](docs/screenshots/03-data-manager.png)
+
+**Environment Variables** — konfigurasi `.env` langsung dari IDE.
+
+![Environment Variables](docs/screenshots/05-settings.png)
+
+**Test Runner** — jalankan test dan lihat log real-time tanpa keluar dari IDE.
+
+![Test Runner](docs/screenshots/06-run-panel-cropped.png)
+
+---
+
 ## Instalasi
 
 ### Jalur 1 — Desktop App (Electron)
