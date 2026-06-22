@@ -9,6 +9,13 @@ import { generateSpec, generateIndex } from './specGenerator.js'
 import { generateAllDataFiles }        from '../factory/DataFactory.js'
 import { generateComponentFile }       from '../factory/ComponentFactory.js'
 
+// File statis dari create-please-test — otomatis ikut versi terbaru saat npm update
+import tplPlaywrightConfig from 'create-please-test/template/playwright.config.js?raw'
+import tplPleaseReporter   from 'create-please-test/template/reporter/please-reporter.js?raw'
+import tplOpenReport       from 'create-please-test/template/scripts/open-report.js?raw'
+import tplGitignore        from 'create-please-test/template/_gitignore?raw'
+import tplPackageJson      from 'create-please-test/template/package.json?raw'
+
 /**
  * Generate semua file project.
  * @param {Object} canvas       - canvasStore
@@ -76,26 +83,20 @@ export function exportProject(canvas, blockRegistry, dataRegistry, componentStor
     category: 'config'
   })
 
-  // ── package.json ──────────────────────────────────────────────
+  // ── package.json — inject project name ke template ───────────
+  const pkg = JSON.parse(tplPackageJson)
+  pkg.name = projectName
   files.push({
     path:     'package.json',
-    content:  generatePackageJson(projectName),
+    content:  JSON.stringify(pkg, null, 4),
     category: 'config'
   })
 
-  // ── playwright.config.js ─────────────────────────────────────
-  files.push({
-    path:     'playwright.config.js',
-    content:  generatePlaywrightConfig(),
-    category: 'config'
-  })
-
-  // ── .gitignore ────────────────────────────────────────────────
-  files.push({
-    path:     '.gitignore',
-    content:  generateGitignore(),
-    category: 'config'
-  })
+  // ── File statis dari create-please-test (selalu up-to-date) ──
+  files.push({ path: 'playwright.config.js',          content: tplPlaywrightConfig, category: 'config' })
+  files.push({ path: 'reporter/please-reporter.js',   content: tplPleaseReporter,   category: 'config' })
+  files.push({ path: 'scripts/open-report.js',        content: tplOpenReport,       category: 'config' })
+  files.push({ path: '.gitignore',                    content: tplGitignore,        category: 'config' })
 
   // ── README.md ─────────────────────────────────────────────────
   files.push({
@@ -125,9 +126,10 @@ function generateAppFile(compNames, compExports) {
   lines.push(``)
   lines.push(`/**`)
   lines.push(` * @param {import('@playwright/test').Page} page`)
+  lines.push(` * @param {import('@playwright/test').TestType<any,any>} [test]`)
   lines.push(` */`)
-  lines.push(`function createApp(page) {`)
-  lines.push(`    const please = new Please(page)`)
+  lines.push(`function createApp(page, test) {`)
+  lines.push(`    const please = new Please(page, test)`)
 
   if (compNames.length === 0) {
     lines.push(`    return { please }`)
@@ -148,66 +150,6 @@ function generateAppFile(compNames, compExports) {
   return lines.join('\n')
 }
 
-function generatePackageJson(name = 'my-automation-tests') {
-  return JSON.stringify({
-    name,
-    version: '1.0.0',
-    description: 'Automation test project using please-test',
-    scripts: {
-      test:   'playwright test',
-      report: 'playwright test --reporter=html && playwright show-report'
-    },
-    dependencies: {
-      'please-test': '^1.0.0'
-    },
-    devDependencies: {
-      'dotenv':           '^16.0.0',
-      '@playwright/test': '^1.40.0'
-    }
-  }, null, 4)
-}
-
-function generatePlaywrightConfig() {
-  return [
-    `require('dotenv').config()`,
-    ``,
-    `const { defineConfig, devices } = require('@playwright/test')`,
-    ``,
-    `const browser  = process.env.BROWSER || 'chromium'`,
-    `const headless = process.env.HEADLESS !== 'false'`,
-    ``,
-    `const browserMap = {`,
-    `    chromium: devices['Desktop Chrome'],`,
-    `    firefox:  devices['Desktop Firefox'],`,
-    `    webkit:   devices['Desktop Safari'],`,
-    `}`,
-    ``,
-    `module.exports = defineConfig({`,
-    `    testDir: './feature',`,
-    `    timeout: 60000,`,
-    `    reporter: 'html',`,
-    `    use: {`,
-    `        headless,`,
-    `        screenshot: 'only-on-failure',`,
-    `        video: 'retain-on-failure',`,
-    `        baseURL: process.env.BASE_URL,`,
-    `    },`,
-    `    projects: [`,
-    `        { name: browser, use: { ...(browserMap[browser] || devices['Desktop Chrome']) } },`,
-    `    ],`,
-    `})`,
-  ].join('\n')
-}
-
-function generateGitignore() {
-  return [
-    'node_modules/',
-    '.env',
-    'test-results/',
-    'playwright-report/',
-    '*.log',
-  ].join('\n')
-}
 
 function generateReadme(projectName, features) {
   const featureList = features

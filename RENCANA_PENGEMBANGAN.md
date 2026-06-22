@@ -573,7 +573,7 @@ QA save Component Builder
 
 ## 9. Roadmap Pengembangan
 
-> **Terakhir diperbarui:** 2026-06-05
+> **Terakhir diperbarui:** 2026-06-22
 >
 > **Legend:** ✅ Selesai · 🔄 Sebagian / perlu penyempurnaan · ⏳ Belum dimulai
 
@@ -626,7 +626,15 @@ Prioritas: IDE bisa digunakan end-to-end untuk membuat dan menjalankan test.
 | ✅ | Topbar redesign + dual menu | Menu teks **File** & **Workspace** (TopbarMenu reusable) di kiri seperti app desktop; aksi (Simpan/Run/Laporan/toggle) di kanan. Brand pindah ke header sidebar untuk hindari duplikasi |
 | ✅ | **Refactor arsitektur MVVM** | **Model** dipindah ke `src/model/{core,services,stores}`. **ViewModel** = composables di `src/composables/` (`useProjectWorkspace`, `useSaveProject`, `useTestRunnerControl`, `usePanelResize`, `useProjectImport`, `useCodeHighlight`, `usePaletteFilter`). **View** `.vue` jadi tipis (AppShell 217→78, ProjectImportModal 83→29 baris). Duplikasi `highlight()` (×3) & filter palette (×2) dihapus. Lihat [Rencana Refactor MVVM](#rencana-refactor-mvvm) |
 
-### v3 — AI dan Cloud
+### v3 — Distribusi, Eksekusi Lanjutan, dan Interoperabilitas
+
+| Status | Fitur | Deskripsi |
+|:---:|---|---|
+| ⏳ | **Easy Install / Distribusi** | Packaging aplikasi agar bisa diinstall dan dijalankan oleh banyak orang tanpa setup manual — misalnya binary Electron (`.dmg`, `.exe`, `.AppImage`), installer wizard, atau distribusi via npm global |
+| ⏳ | **Selective Test Execution** | Jalankan testcase secara spesifik: pilih satu fitur, satu atau beberapa test case tertentu, atau filter berdasarkan tag — bukan hanya "jalankan semua" |
+| ⏳ | **Gherkin Generator** | Export canvas ke sintaks Gherkin (`.feature`) format `Given / When / Then` untuk kompatibilitas dengan tools BDD seperti Cucumber, Behave, atau Playwright BDD |
+
+### v4 — AI dan Cloud
 
 | Status | Fitur | Deskripsi |
 |:---:|---|---|
