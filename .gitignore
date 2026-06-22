@@ -1,30 +1,44 @@
-# Dependencies
-please-blocks-ide/node_modules/
+# ─── Dependencies ────────────────────────────────────────────────────────────
+node_modules/
 
-# Build output
-please-blocks-ide/dist/
-please-blocks-ide/dist-ssr/
+# ─── Build output (generated; bukan source) ──────────────────────────────────
+dist/
+dist-ssr/
+.vite/
 
-# OS
+# ─── Electron release bundles ────────────────────────────────────────────────
+release/
+
+# ─── Environment & secrets ───────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── OS ──────────────────────────────────────────────────────────────────────
 .DS_Store
-please-blocks-ide/.DS_Store
+Thumbs.db
 
-# Editor
-please-blocks-ide/.vscode/
-please-blocks-ide/.idea/
+# ─── Editor ──────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
-# Logs
-please-blocks-ide/*.log
-please-blocks-ide/npm-debug.log*
+# ─── Test coverage ───────────────────────────────────────────────────────────
+coverage/
 
-# Environment
-please-blocks-ide/.env
-please-blocks-ide/.env.local
-please-blocks-ide/.env.*.local
+# ─── AI development tooling ──────────────────────────────────────────────────
+CLAUDE.md
+.claude/
 
-# Vite cache
-please-blocks-ide/.vite/
-
-
-# release
-please-blocks-ide/release/
+# ─── Folder lama (sudah tidak dipakai) ───────────────────────────────────────
+please-blocks-ide/

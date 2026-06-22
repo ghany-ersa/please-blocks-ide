@@ -1,36 +1,127 @@
 # Please Blocks
 
-> Visual block-based IDE for QA Automation — no code required.
+> Visual block-based IDE untuk QA Automation — tanpa menulis kode.
 
-Please Blocks is a drag-and-drop IDE where each test step is represented as a block. QA engineers arrange blocks on a canvas; the IDE generates valid JavaScript test scripts automatically. Every block maps 1:1 to a `please-test` method — a Selenium WebDriver abstraction with expressive, human-readable syntax.
+Please Blocks adalah drag-and-drop IDE di mana setiap langkah test direpresentasikan sebagai blok. QA menyusun blok di canvas → IDE menghasilkan JavaScript test script secara otomatis.
 
 ---
 
-## The Problem
+## Requirements
 
-QA engineers struggle to write automated test scripts because they need to:
+| Kebutuhan | Keterangan |
+|---|---|
+| Node.js ≥ 18 | Wajib |
+| Browser | Chrome / Firefox / Edge |
+| OS | macOS / Windows / Linux |
 
-- Understand JavaScript and Selenium WebDriver syntax
-- Know selector strategies (XPath, CSS, id) manually
-- Maintain consistent project structure across the team
-- Climb a steep learning curve if they are not programmers
+---
 
-## The Solution
+## Instalasi
 
-Arrange blocks → get working test code. No JavaScript knowledge required.
-
-```
-[Go To: URL.login]
-[Fill: "Username" · #username · ACCOUNT.valid.username]
-[Fill: "Password" · #password · ACCOUNT.valid.password]
-[Click: "Login Button" · button[type=submit]]
-[See Text: "Welcome" · .dashboard-header]
+```bash
+npm install -g please-blocks
 ```
 
-Generates:
+Jalankan:
+
+```bash
+please-blocks
+```
+
+Browser akan terbuka otomatis ke `http://localhost:3737`.
+
+Untuk menghentikan:
+
+```bash
+# Ctrl+C di terminal, atau:
+kill $(lsof -ti :3737)
+```
+
+---
+
+## Screenshots
+
+**Project Gate** — pilih atau buat project baru saat pertama kali dibuka.
+
+![Project Gate](docs/screenshots/01-project-gate.png)
+
+**Canvas** — susun blok test secara visual, code preview ter-generate otomatis di kanan.
+
+![Canvas](docs/screenshots/02-canvas-cropped.png)
+
+**Data Manager** — kelola URL, akun, dan data test terpusat.
+
+![Data Manager](docs/screenshots/03-data-manager.png)
+
+**Environment Variables** — konfigurasi `.env` langsung dari IDE.
+
+![Environment Variables](docs/screenshots/05-settings.png)
+
+**Test Runner** — jalankan test dan lihat log real-time tanpa keluar dari IDE.
+
+![Test Runner](docs/screenshots/06-run-panel-cropped.png)
+
+---
+
+## Cara Pakai
+
+### 1. Pilih atau buat project
+
+Saat pertama kali dibuka, pilih **New Project** (folder kosong) atau **Open Project** (folder project yang sudah ada).
+
+### 2. Isi data test
+
+Buka **Data Manager** → tambahkan URL dan akun yang dipakai di test.
 
 ```js
-const { please } = require('../app')
+// Contoh data yang di-generate
+module.exports = {
+  URL: {
+    login: { url: 'https://app.com/login', title: 'Login' }
+  },
+  ACCOUNT: {
+    valid: { username: 'user@mail.com', password: 'secret' }
+  }
+}
+```
+
+### 3. Susun blok di canvas
+
+Drag blok dari palette ke canvas:
+
+```
+[Feature: Login]
+  [Test Case: login berhasil]
+    [Go To · URL.login]
+    [Fill · "Username" · #username · ACCOUNT.valid.username]
+    [Fill · "Password" · #password · ACCOUNT.valid.password]
+    [Click · "Login Button" · button[type=submit]]
+    [See Text · "Welcome" · .dashboard-header]
+```
+
+### 4. Simpan & jalankan
+
+Klik **Simpan** → klik **▶ Run** → log test mengalir real-time di panel bawah.
+
+---
+
+## Blok yang Tersedia
+
+| Kategori | Blok |
+|---|---|
+| Navigation | Go To, Verify Page |
+| Actions | Click, Fill, Fill & Enter, Clear, Date Picker, Upload File, Scroll To |
+| Assertions | See Text, Assert Equal, Assert Not Equal, Get Text, Get Value, Force Fail |
+| Flow | Feature, Test Case |
+| Utilities | Wait |
+| Components | Blok dinamis dari `components/*.js` |
+
+---
+
+## Contoh Kode yang Di-generate
+
+```js
+const { please, AUTH } = require('../app')
 const { URL, ACCOUNT } = require('../data/main')
 
 describe('Login', () => {
@@ -47,140 +138,27 @@ describe('Login', () => {
 
 ---
 
-## Key Principles
-
-| Principle | Description |
-|---|---|
-| **No-code first** | QA only needs to arrange blocks — no writing code |
-| **Code-accessible** | Generated code is clean and editable by advanced QA |
-| **Centralized data** | Change test data once, all tests update automatically |
-| **Reusable components** | Repeated actions (login, logout) built once, used everywhere |
-
----
-
-## Architecture
+## Struktur Project yang Di-generate
 
 ```
-Please Blocks IDE (Electron + Vue 3)
-│
-├── Block Palette          — categorized built-in blocks + dynamic component blocks
-├── Canvas Editor          — drag-and-drop: Feature → Test Case → Steps
-├── Block Inspector        — configure each block's inputs (data refs, selectors, values)
-├── Data Manager           — visual editor for test data (URLs, accounts, etc.)
-├── Component Builder      — build reusable action classes visually
-├── Code Preview           — live Monaco editor view of generated code
-└── Test Runner            — run mocha, stream live logs, view mochawesome report
-```
-
-### Tech Stack
-
-| Layer | Technology |
-|---|---|
-| UI Framework | Vue 3 + Vite + `<script setup>` |
-| Canvas | `@vue-flow/core` |
-| Code preview | `vue-monaco-editor` |
-| State | Pinia |
-| Desktop | Electron |
-| Test runner | `mocha` + `selenium-webdriver` |
-| Test abstraction | `please-test` |
-| Scaffolding | `create-please-test` |
-| Reporting | `mochawesome` |
-
----
-
-## Block Categories
-
-| Category | Blocks |
-|---|---|
-| Navigation | Go To, Verify Page |
-| Actions | Click, Fill, Fill & Enter, Clear, Date Picker, Upload File, Scroll To |
-| Assertions | See Text, Assert Equal, Assert Not Equal, Get Text, Get Value, Force Fail |
-| Flow | Feature (`describe`), Test Case (`it`) |
-| Utilities | Wait |
-| Components | Dynamic blocks generated from `components/*.js` |
-
----
-
-## How Test Data Works
-
-Blocks reference data by path, not by value:
-
-```
-Block stores:  { type: 'dataref', path: 'ACCOUNT.valid' }
-Resolves to:   ACCOUNT.valid   (in generated code)
-```
-
-This means changing `ACCOUNT.valid.username` in the Data Manager automatically updates every block that references it — no canvas edits needed.
-
-Four input types are supported: **Static Data** (`data/main.js`), **Environment Variables** (`.env`), **Canvas Variables** (output of a previous block), and **Inline Values** (typed directly).
-
----
-
-## Generated Project Structure
-
-Please Blocks generates and manages a standard `create-please-test` project:
-
-```
-[project-name]/
-├── app.js                 # Driver setup + please instance + component imports
-├── index.js               # Toggle which features run
-├── .env                   # BASE_URL, credentials
-├── components/            # Reusable action classes
-│   └── auth.js            # class Auth { login(user), logout() }
+[nama-project]/
+├── app.js           # Setup Playwright + please instance
+├── index.js         # Toggle fitur yang dijalankan
+├── .env             # BASE_URL, credentials
+├── components/      # Reusable action classes
 ├── data/
-│   └── main.js            # { URL: {...}, ACCOUNT: {...} }
+│   └── main.js      # Data test terpusat
 └── feature/
-    ├── login.spec.js      # Generated from canvas
-    └── checkout.spec.js
+    └── login.spec.js
 ```
-
-Canvas state is stored as JSON in `.blocks/*.json`. Spec files are **output** — regenerated automatically whenever the canvas changes.
 
 ---
 
-## Roadmap
+## Tech Stack
 
-### v1 — MVP (Core functionality)
-- Block palette, canvas editor, block inspector
-- Data Manager + Data Factory
-- Component Builder + Component Factory
-- Code generator (spec, index, data, component files)
-- Test runner with live log streaming
-- Block validation (highlight incomplete blocks)
-
-### v2 — Productivity
-- Selector Inspector (browser extension: click element → selector auto-fills)
-- Mochawesome report viewer embedded in IDE
-- Canvas variables (pipe `getText` output to assertion blocks)
-- Reverse codegen (parse manually edited `.spec.js` back to canvas)
-- Feature toggle UI, multi-browser support
-
-### v3 — AI & Cloud
-- AI Selector Suggester (screenshot → best selector)
-- Natural language to blocks ("login with wrong username" → block sequence)
-- Cloud runner (BrowserStack/Sauce Labs, parallel multi-browser)
-- CI/CD config export (GitHub Actions, GitLab CI)
-
----
-
-## Project Structure (IDE Source)
-
-```
-please-blocks-ide/
-├── src/
-│   ├── core/
-│   │   ├── blocks/definitions/    # Built-in block definitions
-│   │   ├── factory/               # DataFactory, ComponentFactory
-│   │   └── codegen/               # specGenerator, dataResolver, etc.
-│   ├── stores/                    # Pinia: blockRegistry, canvasStore, dataRegistry
-│   └── components/                # Vue components: canvas, palette, inspector, runner
-└── electron/
-    ├── main.js                    # Electron entry point
-    ├── preload.js                 # IPC bridge
-    └── ipc/                       # fileSystem, testRunner, watcher handlers
-```
+Vue 3 · Pinia · Express · please-test · Playwright
 
 ---
 
 **Author:** Ghany Abdillah Ersa  
-**Stack:** Vue 3 · Electron · please-test · Selenium WebDriver
+**License:** MIT
