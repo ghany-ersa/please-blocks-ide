@@ -1,9 +1,19 @@
 {
-  "name": "please-blocks-ide",
+  "name": "please-blocks",
   "version": "0.1.0",
   "description": "Visual block-based IDE untuk QA Automation berbasis please-test",
   "type": "module",
   "main": "electron/main.js",
+  "bin": {
+    "please-blocks": "bin/please-blocks.js"
+  },
+  "files": [
+    "bin/",
+    "dist/",
+    "server/",
+    "electron/",
+    "package.json"
+  ],
   "scripts": {
     "dev": "concurrently \"node --watch --watch-path=server server/index.js\" \"vite\" --names \"server,vite\" --prefix-colors \"cyan,green\"",
     "server": "node --watch --watch-path=server server/index.js",
@@ -16,6 +26,7 @@
     "dist:win": "vite build && electron-builder --win",
     "dist:linux": "vite build && electron-builder --linux",
     "dist": "vite build && electron-builder --mac --win --linux",
+    "cli": "node bin/please-blocks.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
