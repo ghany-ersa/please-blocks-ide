@@ -4,17 +4,22 @@
  * Modal browser direktori — navigasi folder via service browseDirectory().
  * Emit 'select' dengan absolute path folder yang dipilih.
  */
-import { ref, onMounted } from 'vue'
-import { browseDirectory } from '@/model/services/runnerService.js'
+import { ref, onMounted, nextTick } from 'vue'
+import { browseDirectory, createFolder } from '@/model/services/runnerService.js'
 
 const emit = defineEmits(['select', 'close'])
 
-const currentPath = ref('')
-const crumbs      = ref([])
-const items       = ref([])
-const loading     = ref(false)
-const error       = ref('')
-const selected    = ref('')   // path yang sedang di-highlight
+const currentPath  = ref('')
+const crumbs       = ref([])
+const items        = ref([])
+const loading      = ref(false)
+const error        = ref('')
+const selected     = ref('')   // path yang sedang di-highlight
+
+const creatingFolder  = ref(false)
+const newFolderName   = ref('')
+const creatingError   = ref('')
+const newFolderInput  = ref(null)
 
 async function browse(path = '') {
   loading.value = true
@@ -41,6 +46,31 @@ function highlight(item) {
 
 function confirmSelect() {
   if (selected.value) emit('select', selected.value)
+}
+
+function openCreateFolder() {
+  creatingFolder.value = true
+  newFolderName.value  = ''
+  creatingError.value  = ''
+  nextTick(() => newFolderInput.value?.focus())
+}
+
+function cancelCreateFolder() {
+  creatingFolder.value = false
+  newFolderName.value  = ''
+  creatingError.value  = ''
+}
+
+async function confirmCreateFolder() {
+  const name = newFolderName.value.trim()
+  if (!name) return
+  creatingError.value = ''
+  const res = await createFolder(currentPath.value, name)
+  if (!res.ok) { creatingError.value = res.error; return }
+  creatingFolder.value = false
+  newFolderName.value  = ''
+  await browse(currentPath.value)
+  selected.value = res.path
 }
 
 onMounted(() => browse())
@@ -77,6 +107,26 @@ onMounted(() => browse())
 
       <!-- Error -->
       <div v-if="error" class="picker-error">⚠ {{ error }}</div>
+
+      <!-- New folder -->
+      <div class="new-folder-row">
+        <template v-if="!creatingFolder">
+          <button class="btn-new-folder" @click="openCreateFolder">+ Folder Baru</button>
+        </template>
+        <template v-else>
+          <input
+            ref="newFolderInput"
+            v-model="newFolderName"
+            class="new-folder-input"
+            placeholder="Nama folder..."
+            @keyup.enter="confirmCreateFolder"
+            @keyup.escape="cancelCreateFolder"
+          />
+          <button class="btn-nf-confirm" :disabled="!newFolderName.trim()" @click="confirmCreateFolder">Buat</button>
+          <button class="btn-nf-cancel" @click="cancelCreateFolder">Batal</button>
+        </template>
+      </div>
+      <div v-if="creatingError" class="picker-error">⚠ {{ creatingError }}</div>
 
       <!-- Directory listing -->
       <div class="dir-list" v-if="!loading">
@@ -209,6 +259,37 @@ onMounted(() => browse())
   background: rgba(239,68,68,0.05); border-bottom: 1px solid rgba(239,68,68,0.1);
   flex-shrink: 0;
 }
+
+/* New folder */
+.new-folder-row {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-1-5) 14px;
+  background: #0d1424; border-bottom: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+}
+.btn-new-folder {
+  background: none; border: 1px dashed var(--color-border-default);
+  border-radius: var(--radius-sm); color: var(--color-text-faint);
+  font-size: var(--text-sm); padding: 4px 10px; cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.btn-new-folder:hover { color: var(--color-primary-light); border-color: var(--color-primary-light); }
+.new-folder-input {
+  flex: 1; background: var(--color-bg-base); border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm); color: var(--color-text-primary);
+  font-size: var(--text-sm); font-family: monospace; padding: 4px var(--space-2);
+}
+.btn-nf-confirm {
+  background: var(--color-primary-bg); border: 1px solid rgba(99,102,241,0.35);
+  border-radius: var(--radius-sm); color: var(--color-primary-light);
+  font-size: var(--text-sm); padding: 4px 10px; cursor: pointer;
+}
+.btn-nf-confirm:disabled { opacity: 0.35; cursor: default; }
+.btn-nf-cancel {
+  background: none; border: none; color: var(--color-text-faint);
+  font-size: var(--text-sm); padding: 4px 6px; cursor: pointer;
+}
+.btn-nf-cancel:hover { color: var(--color-text-secondary); }
 
 /* Directory list */
 .dir-list {

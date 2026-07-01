@@ -39,6 +39,35 @@ export async function browseDirectory(path = '') {
 }
 
 /**
+ * Buat subfolder baru di dalam parentPath (untuk directory picker).
+ * @param {string} parentPath - absolute path folder induk
+ * @param {string} name       - nama folder baru
+ * @returns {Promise<{ ok: boolean, path?: string, error?: string }>}
+ */
+export async function createFolder(parentPath, name) {
+  let res
+  try {
+    res = await fetch(`${BASE}/files/new-folder`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ parentPath, name })
+    })
+  } catch (err) {
+    return { ok: false, error: `Tidak dapat terhubung ke server: ${err.message}` }
+  }
+
+  let data
+  try {
+    data = await res.json()
+  } catch {
+    return { ok: false, error: `Server membalas respons non-JSON (status ${res.status}).` }
+  }
+
+  if (!res.ok) return { ok: false, error: data.error || `Gagal membuat folder (status ${res.status})` }
+  return { ok: true, path: data.path }
+}
+
+/**
  * Baca seluruh file relevan dari folder project (Import by Project).
  *
  * @param {string} projectPath - absolute path folder project

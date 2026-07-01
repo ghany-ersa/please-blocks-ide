@@ -140,6 +140,40 @@ function hasPackageJson(dirPath) {
 }
 
 /**
+ * POST /api/files/new-folder
+ * Body: { parentPath: string, name: string }
+ * Buat subfolder baru (non-rekursif ke parent) untuk directory picker.
+ */
+filesRouter.post('/new-folder', (req, res) => {
+  const { parentPath, name } = req.body
+
+  if (!parentPath || !name) {
+    return res.status(400).json({ error: 'parentPath dan name diperlukan' })
+  }
+  if (!/^[^/\\]+$/.test(name) || name === '.' || name === '..') {
+    return res.status(400).json({ error: 'Nama folder tidak valid' })
+  }
+
+  const absParent = resolve(parentPath)
+  if (!existsSync(absParent) || !statSync(absParent).isDirectory()) {
+    return res.status(404).json({ error: `Folder induk tidak ditemukan: ${absParent}` })
+  }
+
+  const target = join(absParent, name)
+  if (existsSync(target)) {
+    return res.status(409).json({ error: 'Folder dengan nama tersebut sudah ada' })
+  }
+
+  try {
+    mkdirSync(target)
+  } catch (err) {
+    return res.status(500).json({ error: `Gagal membuat folder: ${err.message}` })
+  }
+
+  res.json({ ok: true, path: target })
+})
+
+/**
  * GET /api/files/read-project?path=/abs/project
  * Baca semua file relevan dari sebuah project please-test untuk Import by Project.
  * Aman: hanya path di dalam home directory.
